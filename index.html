@@ -102,6 +102,7 @@
     label { font-size: 11px; font-weight: 500; color: var(--text-secondary); letter-spacing: 0.03em; text-transform: uppercase; }
     .req { color: var(--color-danger); }
     input[type="text"], input[type="number"], input[type="date"], select { height: 36px; padding: 0 10px; border: 1px solid var(--border); border-radius: var(--radius-md); font-family: var(--font-sans); font-size: 13px; color: var(--text-primary); background: var(--bg-white); outline: none; transition: border-color var(--transition), box-shadow var(--transition); width: 100%; }
+    input[type="text"] { text-transform: uppercase; }
     input:focus, select:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(26,86,219,0.10); }
     select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%239399a8' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
 
@@ -198,6 +199,10 @@
     .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--color-primary); border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 8px; vertical-align: middle; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    .btn-duzenle { font-size: 11px; padding: 5px 10px; background: var(--color-warning-light); color: var(--color-warning); border: 1px solid rgba(180,83,9,0.2); border-radius: var(--radius-sm); cursor: pointer; font-family: var(--font-sans); font-weight: 500; transition: all var(--transition); }
+    .btn-duzenle:hover { background: #fde68a; }
+    .siparis-card.kapali .siparis-card-header { opacity: 0.7; }
+    .siparis-card.kapali { border-color: #d1cfca; }
     @media (max-width: 900px) {
       #sidebar { display: none; }
       .form-grid-4 { grid-template-columns: 1fr 1fr; }
@@ -221,6 +226,7 @@
       <li class="nav-item" data-page="sevk"><span class="nav-icon">⇗</span><span>Satış / Sevk</span></li>
       <li class="nav-item" data-page="cari"><span class="nav-icon">◎</span><span>Müşteri Carisi</span></li>
       <li class="nav-item" data-page="karpay"><span class="nav-icon">◑</span><span>Kâr Payı</span></li>
+      <li class="nav-item" data-page="tamamlananlar"><span class="nav-icon">✓</span><span>Tamamlananlar</span></li>
     </ul>
     <div class="sidebar-footer">
       <div class="sheets-status">
@@ -323,6 +329,15 @@
     </div>
 
     <!-- DİĞER SAYFALAR -->
+    <div id="page-tamamlananlar" class="page">
+      <div class="page-header"><div><h1>Tamamlananlar</h1><p class="page-sub">Kapatılmış siparişler</p></div></div>
+      <div class="list-controls">
+        <input type="text" id="tamArama" placeholder="Müşteri, sipariş kodu veya ürün ara..." class="search-input" />
+      </div>
+      <div id="tamamlananListesi">
+        <div class="empty-state"><div class="empty-icon">✓</div><p>Henüz tamamlanan sipariş yok</p><span>Kapatılan siparişler burada görünür</span></div>
+      </div>
+    </div>
     <div id="page-uretimler" class="page"><div class="page-header"><h1>Üretimler</h1></div><div class="coming-soon">Yakında eklenecek</div></div>
     <div id="page-sevk" class="page"><div class="page-header"><h1>Satış / Sevk</h1></div><div class="coming-soon">Yakında eklenecek</div></div>
     <div id="page-cari" class="page"><div class="page-header"><h1>Müşteri Carisi</h1></div><div class="coming-soon">Yakında eklenecek</div></div>
@@ -448,6 +463,7 @@ const Sheets = (() => {
     siparislerGetir: () => _istek('siparislerGetir', {}),
     siparisKaydet: (siparis) => _istek('siparisKaydet', { siparis }),
     siparisKapat: (siparisKodu) => _istek('siparisKapat', { siparisKodu }),
+    siparisAc: (siparisKodu) => _istek('siparisAc', { siparisKodu }),
     uretimKaydet: (kayit) => _istek('uretimKaydet', { kayit }),
     sevkKaydet: (kayit) => _istek('sevkKaydet', { kayit }),
   };
@@ -657,12 +673,18 @@ async function _siparisleriYukle() {
 }
 
 function _listeRender() {
+  _aktifListeRender();
+  _tamamlananListeRender();
+}
+
+function _aktifListeRender() {
   const container = document.getElementById('siparisListesi');
   if (!container) return;
   const arama = (document.getElementById('sipArama')?.value || '').toLowerCase();
   const durum = document.getElementById('sipDurumFiltre')?.value || 'tumu';
 
-  let liste = [..._tumSiparisler];
+  // Sadece kapalı olmayanları göster
+  let liste = _tumSiparisler.filter(s => s.durum !== 'kapali');
   if (durum !== 'tumu') liste = liste.filter(s => s.durum === durum);
   if (arama) liste = liste.filter(s =>
     s.musteriAdi?.toLowerCase().includes(arama) ||
@@ -684,9 +706,31 @@ function _listeRender() {
   }
 }
 
+function _tamamlananListeRender() {
+  const container = document.getElementById('tamamlananListesi');
+  if (!container) return;
+  const arama = (document.getElementById('tamArama')?.value || '').toLowerCase();
+
+  let liste = _tumSiparisler.filter(s => s.durum === 'kapali');
+  if (arama) liste = liste.filter(s =>
+    s.musteriAdi?.toLowerCase().includes(arama) ||
+    s.kod?.toLowerCase().includes(arama) ||
+    s.marka?.toLowerCase().includes(arama)
+  );
+  liste.sort((a,b) => new Date(b.olusturmaZamani) - new Date(a.olusturmaZamani));
+
+  if (liste.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">✓</div><p>Henüz tamamlanan sipariş yok</p><span>Kapatılan siparişler burada görünür</span></div>`;
+    return;
+  }
+  container.innerHTML = '';
+  liste.forEach(s => container.appendChild(_kartOlustur(s)));
+}
+
 function _kartOlustur(siparis) {
   const kart = document.createElement('div');
-  kart.className = 'siparis-card';
+  const kapali = siparis.durum === 'kapali';
+  kart.className = 'siparis-card' + (kapali ? ' kapali' : '');
   kart.dataset.kod = siparis.kod;
 
   let toplamEksik = 0;
@@ -702,23 +746,24 @@ function _kartOlustur(siparis) {
       <span class="sip-kod">${siparis.kod}</span>
       <span class="sip-musteri">${_esc(siparis.musteriAdi)}</span>
       <span class="sip-marka">${_esc(siparis.marka)}</span>
-      ${toplamEksik > 0 && siparis.durum !== 'kapali' ? `<span class="sip-fark-uyari">⚠ ${_fmt(toplamEksik)} m eksik</span>` : ''}
+      ${toplamEksik > 0 && !kapali ? `<span class="sip-fark-uyari">⚠ ${_fmt(toplamEksik)} m eksik</span>` : ''}
+      ${kapali ? `<span style="font-size:11px;font-weight:600;background:#f3f4f6;color:#6b7280;padding:2px 8px;border-radius:4px;">KAPATILDI</span>` : ''}
       ${borc > 0 ? `<span class="sip-borc">Borç: ${_fmtTl(borc)}</span>` : ''}
       <span class="sip-tarih">${_fmtTarih(siparis.tarih)} · ${siparis.doviz} · ${siparis.kalemler?.length||0} kalem</span>
       <span class="sip-chevron">▼</span>
     </div>
     <div class="siparis-card-body">
-      ${_kalemTablosu(siparis)}
+      ${_kalemTablosu(siparis, kapali)}
       <div class="siparis-kapat-row">
-        ${siparis.durum !== 'kapali'
+        ${!kapali
           ? `<button class="btn btn-sm btn-ghost btn-siparis-kapat" data-kod="${siparis.kod}">Siparişi Kapat</button>`
-          : `<span style="font-size:11px;color:var(--text-muted)">Kapatıldı</span>`}
+          : `<button class="btn-duzenle btn-siparis-ac" data-kod="${siparis.kod}">✎ Düzenle (Yeniden Aç)</button>`}
       </div>
     </div>
   `;
 
   kart.querySelector('.siparis-card-header').addEventListener('click', (e) => {
-    if (e.target.closest('.btn-siparis-kapat')) return;
+    if (e.target.closest('.btn-siparis-kapat') || e.target.closest('.btn-siparis-ac')) return;
     const acikti = kart.classList.contains('open');
     document.querySelectorAll('.siparis-card.open').forEach(k => k.classList.remove('open'));
     if (!acikti) { kart.classList.add('open'); _aktifKod = siparis.kod; }
@@ -728,7 +773,7 @@ function _kartOlustur(siparis) {
   return kart;
 }
 
-function _kalemTablosu(siparis) {
+function _kalemTablosu(siparis, kapali) {
   const satirlar = (siparis.kalemler||[]).map(k => {
     const fark = (k.uretimMiktar||0) - k.siparisMiktar;
     const farkClass = fark===0?'kalem-fark-sifir':fark>0?'kalem-fark-pos':'kalem-fark-neg';
@@ -751,10 +796,10 @@ function _kalemTablosu(siparis) {
         <td><span class="kalem-durum ${_durumClass(durum)}">${durum}</span></td>
         <td>
           <div class="kalem-aksiyonlar">
-            <button class="btn-uretim ${uretimVar?'girildi':''}" data-kalem-id="${k.id}" data-siparis-kod="${siparis.kod}">
+            <button class="btn-uretim ${uretimVar?'girildi':''}" data-kalem-id="${k.id}" data-siparis-kod="${siparis.kod}" ${kapali?'disabled':''}>
               ${uretimVar?'✓ Üretim':'Üretim Gir'}
             </button>
-            <button class="btn-sevk" data-kalem-id="${k.id}" data-siparis-kod="${siparis.kod}" ${!uretimVar?'disabled':''}>
+            <button class="btn-sevk" data-kalem-id="${k.id}" data-siparis-kod="${siparis.kod}" ${(!uretimVar||kapali)?'disabled':''}>
               Sevk Gir
             </button>
           </div>
@@ -899,6 +944,15 @@ async function _siparisKapat(kod) {
   } catch(e){ toast('Hata: '+e.message,'error'); }
 }
 
+async function _siparisAc(kod) {
+  if (!confirm(kod + ' siparişini yeniden açmak istediğinize emin misiniz?')) return;
+  try {
+    await Sheets.siparisAc(kod);
+    toast(kod+' yeniden açıldı','success');
+    await _siparisleriYukle();
+  } catch(e){ toast('Hata: '+e.message,'error'); }
+}
+
 // ============================================================
 // OLAY DİNLEYİCİLER
 // ============================================================
@@ -932,13 +986,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Sipariş listesi delegation
   document.getElementById('siparisListesi')?.addEventListener('click', e => {
-    const uBtn = e.target.closest('.btn-uretim');
+    const uBtn = e.target.closest('.btn-uretim:not(:disabled)');
     if (uBtn) { _uretimModalAc(uBtn.dataset.kalemId, uBtn.dataset.siparisKod); return; }
     const sBtn = e.target.closest('.btn-sevk:not(:disabled)');
     if (sBtn) { _sevkModalAc(sBtn.dataset.kalemId, sBtn.dataset.siparisKod); return; }
     const kBtn = e.target.closest('.btn-siparis-kapat');
     if (kBtn) { _siparisKapat(kBtn.dataset.kod); return; }
   });
+
+  // Tamamlananlar listesi delegation
+  document.getElementById('tamamlananListesi')?.addEventListener('click', e => {
+    const aBtn = e.target.closest('.btn-siparis-ac');
+    if (aBtn) { _siparisAc(aBtn.dataset.kod); return; }
+  });
+
+  // Tamamlananlar arama
+  document.getElementById('tamArama')?.addEventListener('input', _tamamlananListeRender);
 
   // Üretim modal
   document.getElementById('btnUretimModalKapat')?.addEventListener('click', () => document.getElementById('modalUretim').classList.add('hidden'));
