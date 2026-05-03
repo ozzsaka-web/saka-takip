@@ -373,8 +373,25 @@
         <div class="empty-state"><div class="empty-icon">✓</div><p>Henüz tamamlanan sipariş yok</p><span>Kapatılan siparişler burada görünür</span></div>
       </div>
     </div>
-    <div id="page-uretimler" class="page"><div class="page-header"><h1>Üretimler</h1></div><div class="coming-soon">Yakında eklenecek</div></div>
-    <div id="page-sevk" class="page"><div class="page-header"><h1>Satış / Sevk</h1></div><div class="coming-soon">Yakında eklenecek</div></div>
+    <!-- ÜRETİMLER SAYFASI -->
+    <div id="page-uretimler" class="page">
+      <div class="page-header">
+        <div><h1>Üretimler</h1><p class="page-sub">Siparişe karşılık yapılan üretimler</p></div>
+      </div>
+      <div id="uretimlerListesi">
+        <div class="empty-state"><div class="empty-icon">⚙</div><p>Yükleniyor...</p></div>
+      </div>
+    </div>
+
+    <!-- SATIŞ / SEVK SAYFASI -->
+    <div id="page-sevk" class="page">
+      <div class="page-header">
+        <div><h1>Satış / Sevk</h1><p class="page-sub">Üretime karşılık yapılan sevkler</p></div>
+      </div>
+      <div id="sevkListesi">
+        <div class="empty-state"><div class="empty-icon">⇗</div><p>Yükleniyor...</p></div>
+      </div>
+    </div>
     <div id="page-cari" class="page"><div class="page-header"><h1>Müşteri Carisi</h1></div><div class="coming-soon">Yakında eklenecek</div></div>
     <div id="page-karpay" class="page">
       <div class="page-header">
@@ -1262,12 +1279,258 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Kâr payı sayfası açılınca yükle
   document.querySelectorAll('.nav-item').forEach(item => {
     if (item.dataset.page === 'karpay') item.addEventListener('click', _kpYukle);
+    if (item.dataset.page === 'uretimler') item.addEventListener('click', _uretimlerRender);
+    if (item.dataset.page === 'sevk') item.addEventListener('click', _sevkRender);
   });
 });
 
 // ============================================================
-// KAR PAYI FONKSİYONLARI
+// ÜRETİMLER SAYFASI
 // ============================================================
+
+function _uretimlerRender() {
+  const container = document.getElementById('uretimlerListesi');
+  if (!container) return;
+
+  const liste = (_tumSiparisler || []).filter(s =>
+    s.kalemler && s.kalemler.some(k => (k.uretimMiktar || 0) > 0)
+  );
+
+  if (liste.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">⚙</div><p>Henüz üretim kaydı yok</p><span>Siparişler sayfasından üretim bilgisi girin</span></div>`;
+    return;
+  }
+
+  container.innerHTML = '';
+  liste.forEach(s => {
+    const kart = document.createElement('div');
+    kart.className = 'siparis-card';
+    kart.style.marginBottom = '10px';
+
+    const toplamSiparis = s.kalemler.reduce((t, k) => t + (Number(k.siparisMiktar)||0), 0);
+    const toplamUretim = s.kalemler.reduce((t, k) => t + (Number(k.uretimMiktar)||0), 0);
+    const toplamFark = toplamUretim - toplamSiparis;
+    const farkRenk = toplamFark === 0 ? 'var(--text-muted)' : toplamFark > 0 ? 'var(--color-success)' : 'var(--color-danger)';
+    const farkStr = toplamFark === 0 ? '±0' : toplamFark > 0 ? `+${_fmt(toplamFark)}` : _fmt(toplamFark);
+
+    kart.innerHTML = `
+      <div class="siparis-card-header">
+        <span class="sip-kod">${s.kod}</span>
+        <span class="sip-musteri">${_esc(s.musteriAdi)}</span>
+        <span class="sip-marka">${_esc(s.marka)}</span>
+        <span style="font-size:11px;color:var(--text-muted);margin-left:auto;">${_fmtTarih(s.tarih)} · ${s.doviz}</span>
+        <button class="btn btn-sm btn-ghost" style="font-size:11px;" onclick="_uretimFisiYazdir('${s.kod}')">🖨 Üretim Fişi</button>
+        <span class="sip-chevron">▼</span>
+      </div>
+      <div class="siparis-card-body">
+        <table class="kalem-table">
+          <thead><tr>
+            <th>Ürün</th><th>Renk / Kod</th>
+            <th style="text-align:right">Sipariş (M)</th>
+            <th style="text-align:right">Üretim (M)</th>
+            <th style="text-align:right">Fark (M)</th>
+            <th style="text-align:right">Alış Fiyatı</th>
+            <th style="text-align:right">Kur (TL)</th>
+            <th style="text-align:right">Toplam Döviz</th>
+            <th style="text-align:right">Toplam TL</th>
+          </tr></thead>
+          <tbody>
+            ${s.kalemler.map(k => {
+              const fark = (Number(k.uretimMiktar)||0) - (Number(k.siparisMiktar)||0);
+              const fc = fark===0?'kalem-fark-sifir':fark>0?'kalem-fark-pos':'kalem-fark-neg';
+              const fs = fark===0?'+0':fark>0?`+${_fmt(fark)}`:_fmt(fark);
+              const toplamDoviz = (Number(k.alisFiyat)||0) * (Number(k.uretimMiktar)||0);
+              const toplamTl = toplamDoviz * (Number(k.alisKur)||0);
+              return `<tr>
+                <td class="kalem-urun-adi">${_esc(k.urunAdi)}</td>
+                <td><span class="kalem-renk">${_esc(k.renkKod||'—')}</span></td>
+                <td class="kalem-sayi">${_fmt(k.siparisMiktar)}</td>
+                <td class="kalem-sayi" style="font-weight:600;">${_fmt(k.uretimMiktar||0)}</td>
+                <td class="kalem-sayi ${fc}">${fs}</td>
+                <td class="kalem-sayi">${k.alisFiyat ? _fmt(k.alisFiyat)+' '+s.doviz : '—'}</td>
+                <td class="kalem-sayi">${k.alisKur ? _fmtTl(k.alisKur) : '—'}</td>
+                <td class="kalem-sayi">${toplamDoviz>0?_fmt(toplamDoviz)+' '+s.doviz:'—'}</td>
+                <td class="kalem-sayi">${toplamTl>0?_fmtTl(toplamTl):'—'}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+
+    kart.querySelector('.siparis-card-header').addEventListener('click', (e) => {
+      if (e.target.closest('button')) return;
+      kart.classList.toggle('open');
+    });
+
+    container.appendChild(kart);
+  });
+}
+
+function _uretimFisiYazdir(siparisKodu) {
+  const s = (_tumSiparisler || []).find(x => x.kod === siparisKodu);
+  if (!s) return;
+
+  const satirlar = s.kalemler.map(k => {
+    const fark = (Number(k.uretimMiktar)||0) - (Number(k.siparisMiktar)||0);
+    const farkStr = fark===0?'+0':fark>0?`+${_fmt(fark)}`:_fmt(fark);
+    const toplamDoviz = (Number(k.alisFiyat)||0) * (Number(k.uretimMiktar)||0);
+    const toplamTl = toplamDoviz * (Number(k.alisKur)||0);
+    return `${(k.urunAdi||'').substring(0,16).padEnd(17)}${(k.renkKod||'').substring(0,10).padEnd(11)}${_fmt(k.siparisMiktar).padEnd(9)}${_fmt(k.uretimMiktar||0).padEnd(9)}${farkStr.padEnd(8)}${_fmtTl(toplamTl)}`;
+  }).join('\n');
+
+  const toplamSiparis = s.kalemler.reduce((t,k) => t+(Number(k.siparisMiktar)||0), 0);
+  const toplamUretim = s.kalemler.reduce((t,k) => t+(Number(k.uretimMiktar)||0), 0);
+  const toplamFark = toplamUretim - toplamSiparis;
+
+  const icerik = `URETiM FiSi
+${'='.repeat(60)}
+Siparis Kodu : ${s.kod}
+Musteri      : ${s.musteriAdi}
+Marka        : ${s.marka}
+Tarih        : ${_fmtTarih(s.tarih)}
+Doviz        : ${s.doviz}
+${'='.repeat(60)}
+
+${'URUN'.padEnd(17)}${'RENK/KOD'.padEnd(11)}${'SiP(M)'.padEnd(9)}${'URE(M)'.padEnd(9)}${'FARK'.padEnd(8)}${'TOPLAM TL'}
+${'-'.repeat(60)}
+${satirlar}
+${'-'.repeat(60)}
+${'TOPLAM'.padEnd(17)}${''.padEnd(11)}${_fmt(toplamSiparis).padEnd(9)}${_fmt(toplamUretim).padEnd(9)}${(toplamFark>=0?'+':'')+_fmt(toplamFark)}
+
+${'='.repeat(60)}
+SAKA TAKiP - Sistem Ciktisi
+${'='.repeat(60)}`;
+
+  const w = window.open('','_blank','width=700,height=600');
+  w.document.write(`<!DOCTYPE html><html><head><title>Uretim Fisi - ${s.kod}</title>
+    <style>body{font-family:'Courier New',monospace;font-size:12px;padding:30px;white-space:pre;line-height:1.6;}@media print{body{padding:10px;}@page{margin:1cm;}}</style>
+    </head><body>${icerik}</body></html>`);
+  w.document.close();
+  w.focus();
+  setTimeout(() => w.print(), 400);
+}
+
+// ============================================================
+// SATIŞ / SEVK SAYFASI
+// ============================================================
+
+function _sevkRender() {
+  const container = document.getElementById('sevkListesi');
+  if (!container) return;
+
+  const liste = (_tumSiparisler || []).filter(s =>
+    s.kalemler && s.kalemler.some(k => (k.sevkMiktar || 0) > 0)
+  );
+
+  if (liste.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">⇗</div><p>Henüz sevk kaydı yok</p><span>Siparişler sayfasından sevk bilgisi girin</span></div>`;
+    return;
+  }
+
+  container.innerHTML = '';
+  liste.forEach(s => {
+    const kart = document.createElement('div');
+    kart.className = 'siparis-card';
+    kart.style.marginBottom = '10px';
+
+    kart.innerHTML = `
+      <div class="siparis-card-header">
+        <span class="sip-kod">${s.kod}</span>
+        <span class="sip-musteri">${_esc(s.musteriAdi)}</span>
+        <span class="sip-marka">${_esc(s.marka)}</span>
+        <span style="font-size:11px;color:var(--text-muted);margin-left:auto;">${_fmtTarih(s.tarih)} · ${s.doviz}</span>
+        <button class="btn btn-sm btn-ghost" style="font-size:11px;" onclick="_sevkFisiYazdir('${s.kod}')">🖨 Sevk Fişi</button>
+        <span class="sip-chevron">▼</span>
+      </div>
+      <div class="siparis-card-body">
+        <table class="kalem-table">
+          <thead><tr>
+            <th>Ürün</th><th>Renk / Kod</th>
+            <th style="text-align:right">Üretim (M)</th>
+            <th style="text-align:right">Sevk (M)</th>
+            <th style="text-align:right">Fark (M)</th>
+            <th style="text-align:right">Satış Fiyatı</th>
+            <th style="text-align:right">Kur (TL)</th>
+            <th style="text-align:right">Toplam Döviz</th>
+            <th style="text-align:right">Toplam TL</th>
+          </tr></thead>
+          <tbody>
+            ${s.kalemler.map(k => {
+              const fark = (Number(k.sevkMiktar)||0) - (Number(k.uretimMiktar)||0);
+              const fc = fark===0?'kalem-fark-sifir':fark>0?'kalem-fark-pos':'kalem-fark-neg';
+              const fs = fark===0?'+0':fark>0?`+${_fmt(fark)}`:_fmt(fark);
+              const toplamDoviz = (Number(k.satisFiyat)||0) * (Number(k.sevkMiktar)||0);
+              const toplamTl = toplamDoviz * (Number(k.satisKur)||0);
+              return `<tr>
+                <td class="kalem-urun-adi">${_esc(k.urunAdi)}</td>
+                <td><span class="kalem-renk">${_esc(k.renkKod||'—')}</span></td>
+                <td class="kalem-sayi">${_fmt(k.uretimMiktar||0)}</td>
+                <td class="kalem-sayi" style="font-weight:600;">${_fmt(k.sevkMiktar||0)}</td>
+                <td class="kalem-sayi ${fc}">${fs}</td>
+                <td class="kalem-sayi">${k.satisFiyat ? _fmt(k.satisFiyat)+' '+s.doviz : '—'}</td>
+                <td class="kalem-sayi">${k.satisKur ? _fmtTl(k.satisKur) : '—'}</td>
+                <td class="kalem-sayi">${toplamDoviz>0?_fmt(toplamDoviz)+' '+s.doviz:'—'}</td>
+                <td class="kalem-sayi">${toplamTl>0?_fmtTl(toplamTl):'—'}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+
+    kart.querySelector('.siparis-card-header').addEventListener('click', (e) => {
+      if (e.target.closest('button')) return;
+      kart.classList.toggle('open');
+    });
+
+    container.appendChild(kart);
+  });
+}
+
+function _sevkFisiYazdir(siparisKodu) {
+  const s = (_tumSiparisler || []).find(x => x.kod === siparisKodu);
+  if (!s) return;
+
+  const satirlar = s.kalemler.map(k => {
+    const fark = (Number(k.sevkMiktar)||0) - (Number(k.uretimMiktar)||0);
+    const farkStr = fark===0?'+0':fark>0?`+${_fmt(fark)}`:_fmt(fark);
+    const toplamDoviz = (Number(k.satisFiyat)||0) * (Number(k.sevkMiktar)||0);
+    const toplamTl = toplamDoviz * (Number(k.satisKur)||0);
+    return `${(k.urunAdi||'').substring(0,16).padEnd(17)}${(k.renkKod||'').substring(0,10).padEnd(11)}${_fmt(k.uretimMiktar||0).padEnd(9)}${_fmt(k.sevkMiktar||0).padEnd(9)}${farkStr.padEnd(8)}${_fmtTl(toplamTl)}`;
+  }).join('\n');
+
+  const toplamUretim = s.kalemler.reduce((t,k) => t+(Number(k.uretimMiktar)||0), 0);
+  const toplamSevk = s.kalemler.reduce((t,k) => t+(Number(k.sevkMiktar)||0), 0);
+  const toplamTutar = s.kalemler.reduce((t,k) => t+((Number(k.satisFiyat)||0)*(Number(k.sevkMiktar)||0)*(Number(k.satisKur)||0)), 0);
+
+  const icerik = `SEVK FiSi
+${'='.repeat(60)}
+Siparis Kodu : ${s.kod}
+Musteri      : ${s.musteriAdi}
+Marka        : ${s.marka}
+Tarih        : ${_fmtTarih(s.tarih)}
+Doviz        : ${s.doviz}
+${'='.repeat(60)}
+
+${'URUN'.padEnd(17)}${'RENK/KOD'.padEnd(11)}${'URE(M)'.padEnd(9)}${'SEVK(M)'.padEnd(9)}${'FARK'.padEnd(8)}${'TOPLAM TL'}
+${'-'.repeat(60)}
+${satirlar}
+${'-'.repeat(60)}
+${'TOPLAM'.padEnd(17)}${''.padEnd(11)}${_fmt(toplamUretim).padEnd(9)}${_fmt(toplamSevk).padEnd(9)}${''.padEnd(8)}${_fmtTl(toplamTutar)}
+
+${'='.repeat(60)}
+SAKA TAKiP - Sistem Ciktisi
+${'='.repeat(60)}`;
+
+  const w = window.open('','_blank','width=700,height=600');
+  w.document.write(`<!DOCTYPE html><html><head><title>Sevk Fisi - ${s.kod}</title>
+    <style>body{font-family:'Courier New',monospace;font-size:12px;padding:30px;white-space:pre;line-height:1.6;}@media print{body{padding:10px;}@page{margin:1cm;}}</style>
+    </head><body>${icerik}</body></html>`);
+  w.document.close();
+  w.focus();
+  setTimeout(() => w.print(), 400);
+}
+
+
 
 let _kpGiderler = [];
 let _kpOdemeler = [];
