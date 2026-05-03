@@ -306,7 +306,7 @@
             </div>
             <div class="form-group">
               <label>Marka / Fabrika <span class="req">*</span></label>
-              <input type="text" id="sipMarka" placeholder="örn: DOĞUŞ" />
+              <input type="text" id="sipMarka" placeholder="örn: DERİSAN" />
             </div>
             <div class="form-group">
               <label>Döviz <span class="req">*</span></label>
@@ -840,6 +840,7 @@ function _formuAc() {
   const kod = _siparisKoduUret();
   const kodEl = document.getElementById('yeniSiparisKodu');
   if (kodEl) { kodEl.textContent = kod; kodEl.dataset.kod = kod; }
+  document.getElementById('sipMarka').value = 'DERİSAN';
   document.getElementById('sipMusteri')?.focus();
 }
 
