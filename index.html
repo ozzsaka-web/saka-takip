@@ -611,6 +611,12 @@ const Sheets = (() => {
     siparisAc: (siparisKodu) => _istek('siparisAc', { siparisKodu }),
     uretimKaydet: (kayit) => _istek('uretimKaydet', { kayit }),
     sevkKaydet: (kayit) => _istek('sevkKaydet', { kayit }),
+    giderKaydet: (kayit) => _istek('giderKaydet', { kayit }),
+    giderleriGetir: () => _istek('giderleriGetir', {}),
+    odemeKaydet: (kayit) => _istek('odemeKaydet', { kayit }),
+    odemeleriGetir: () => _istek('odemeleriGetir', {}),
+    tahsilatKaydet: (kayit) => _istek('tahsilatKaydet', { kayit }),
+    tahsilatlariGetir: (musteriAdi) => _istek('tahsilatlariGetir', { musteriAdi }),
   };
 })();
 
