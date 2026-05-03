@@ -214,6 +214,29 @@
     .kp-kart-value.danger { color: var(--color-danger); }
     .kp-kart-value.success { color: var(--color-success); }
     .kp-kart-value.primary { color: var(--color-primary); }
+    .kp-baslik { font-size: 13px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
+
+    /* Akordion satır (gider/ödeme) */
+    .kp-satir { background: var(--bg-white); border: 1px solid var(--border); border-radius: var(--radius-md); margin-bottom: 6px; overflow: hidden; }
+    .kp-satir-header { display: flex; align-items: center; gap: 10px; padding: 11px 14px; cursor: pointer; user-select: none; transition: background var(--transition); }
+    .kp-satir-header:hover { background: #fafaf8; }
+    .kp-satir.open .kp-satir-header { background: #fafaf8; border-bottom: 1px solid var(--border); }
+    .kp-satir-tarih { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); flex-shrink: 0; }
+    .kp-satir-aciklama { font-size: 13px; font-weight: 500; flex: 1; }
+    .kp-satir-tutar { font-family: var(--font-mono); font-size: 13px; font-weight: 600; flex-shrink: 0; }
+    .kp-satir-chevron { font-size: 10px; color: var(--text-muted); flex-shrink: 0; transition: transform var(--transition); }
+    .kp-satir.open .kp-satir-chevron { transform: rotate(180deg); }
+    .kp-satir-body { display: none; padding: 12px 14px; font-size: 12px; color: var(--text-secondary); }
+    .kp-satir.open .kp-satir-body { display: flex; align-items: center; justify-content: space-between; }
+    .btn-sil-kucuk { font-size: 11px; padding: 4px 10px; background: var(--color-danger-light); color: var(--color-danger); border: 1px solid rgba(192,57,43,0.2); border-radius: var(--radius-sm); cursor: pointer; font-family: var(--font-sans); font-weight: 500; transition: all var(--transition); }
+    .btn-sil-kucuk:hover { background: #f5c6c3; }
+
+    /* Print / Dot matrix rapor */
+    @media print {
+      body * { visibility: hidden; }
+      #printAlani, #printAlani * { visibility: visible; }
+      #printAlani { position: fixed; top: 0; left: 0; width: 100%; font-family: 'Courier New', monospace; font-size: 11px; }
+    }
     @media (max-width: 1200px) { .kp-kartlar { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 900px) {
       #sidebar { display: none; }
@@ -357,16 +380,17 @@
       <div class="page-header">
         <div><h1>Kâr Payı</h1><p class="page-sub">Gelir, gider ve kar payı takibi</p></div>
         <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost btn-sm" id="btnKpRapor">🖨 Rapor Al</button>
           <button class="btn btn-outline btn-sm" id="btnGiderEkle">+ Gider Ekle</button>
           <button class="btn btn-outline btn-sm" id="btnOdemeEkle">+ Ödeme Aldım</button>
         </div>
       </div>
 
-      <!-- ÖZET KARTLAR -->
+      <!-- ÖZET KARTLAR - SATIR 1 -->
       <div class="kp-kartlar">
         <div class="kp-kart">
           <div class="kp-kart-label">Toplam Satış / Teslimat</div>
-          <div class="kp-kart-value" id="kpToplam">₺0</div>
+          <div class="kp-kart-value success" id="kpToplam">₺0</div>
         </div>
         <div class="kp-kart">
           <div class="kp-kart-label">Toplam Maliyet</div>
@@ -374,7 +398,7 @@
         </div>
         <div class="kp-kart">
           <div class="kp-kart-label">Brüt Kâr</div>
-          <div class="kp-kart-value success" id="kpBrutKar">₺0</div>
+          <div class="kp-kart-value" id="kpBrutKar">₺0</div>
         </div>
         <div class="kp-kart">
           <div class="kp-kart-label">Benim Payım (%50)</div>
@@ -389,7 +413,9 @@
           <div class="kp-kart-value primary" id="kpNetAlacak">₺0</div>
         </div>
       </div>
-      <div class="kp-kartlar" style="margin-top:10px;">
+
+      <!-- ÖZET KARTLAR - SATIR 2 -->
+      <div class="kp-kartlar" style="margin-top:10px;grid-template-columns:1fr 1fr 4fr;">
         <div class="kp-kart">
           <div class="kp-kart-label">Alınan Toplam</div>
           <div class="kp-kart-value success" id="kpAlinan">₺0</div>
@@ -398,49 +424,13 @@
           <div class="kp-kart-label">Kalan Alacağım</div>
           <div class="kp-kart-value primary" id="kpKalan">₺0</div>
         </div>
-      </div>
-
-      <!-- GİDER MODAL -->
-      <div id="modalGider" class="modal-overlay hidden">
-        <div class="modal">
-          <div class="modal-header"><h3>Gider Ekle</h3><button class="btn-close" onclick="document.getElementById('modalGider').classList.add('hidden')">✕</button></div>
-          <div class="modal-body">
-            <div class="form-grid-3">
-              <div class="form-group"><label>Tarih <span class="req">*</span></label><input type="date" id="giderTarih" /></div>
-              <div class="form-group"><label>Tutar (TL) <span class="req">*</span></label><input type="number" id="giderTutar" placeholder="0.00" /></div>
-              <div class="form-group"><label>Döviz</label><select id="giderDoviz"><option value="TL">TL</option><option value="EUR">EUR</option><option value="USD">USD</option></select></div>
-            </div>
-            <div class="form-group" style="margin-top:12px;"><label>Açıklama <span class="req">*</span></label><input type="text" id="giderAciklama" placeholder="Gider açıklaması..." /></div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-ghost" onclick="document.getElementById('modalGider').classList.add('hidden')">İptal</button>
-            <button class="btn btn-primary" id="btnGiderKaydet">Kaydet</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- ÖDEME MODAL -->
-      <div id="modalOdeme" class="modal-overlay hidden">
-        <div class="modal">
-          <div class="modal-header"><h3>Ödeme Aldım</h3><button class="btn-close" onclick="document.getElementById('modalOdeme').classList.add('hidden')">✕</button></div>
-          <div class="modal-body">
-            <div class="form-grid-3">
-              <div class="form-group"><label>Tarih <span class="req">*</span></label><input type="date" id="odemeTarih" /></div>
-              <div class="form-group"><label>Tutar (TL) <span class="req">*</span></label><input type="number" id="odemeTutar" placeholder="0.00" /></div>
-              <div class="form-group"><label>Not</label><input type="text" id="odemeNot" placeholder="Opsiyonel..." /></div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-ghost" onclick="document.getElementById('modalOdeme').classList.add('hidden')">İptal</button>
-            <button class="btn btn-primary" id="btnOdemeKaydet">Kaydet</button>
-          </div>
-        </div>
+        <div></div>
       </div>
 
       <!-- SİPARİŞ BAZINDA KAR TABLOSU -->
       <div style="margin-top:24px;">
-        <h3 style="font-size:14px;font-weight:600;margin-bottom:12px;color:var(--text-secondary);">Sipariş Bazında Kâr</h3>
-        <div style="background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;">
+        <h3 class="kp-baslik">Sipariş Bazında Kâr</h3>
+        <div style="background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:auto;">
           <table class="kalem-table" id="kpKarTablosu">
             <thead><tr>
               <th>Tarih</th><th>Müşteri</th><th>Sip. Kodu</th>
@@ -453,26 +443,78 @@
               <th style="text-align:right">Benim Payım</th>
               <th style="text-align:right">Şirket Payı</th>
             </tr></thead>
-            <tbody id="kpKarBody"><tr><td colspan="11" class="loading-row"><span class="spinner"></span> Yükleniyor...</td></tr></tbody>
+            <tbody id="kpKarBody">
+              <tr><td colspan="11" class="loading-row"><span class="spinner"></span> Yükleniyor...</td></tr>
+            </tbody>
           </table>
         </div>
       </div>
 
-      <!-- GİDERLER LİSTESİ -->
+      <!-- GİDERLER AKORDİON -->
       <div style="margin-top:24px;">
-        <h3 style="font-size:14px;font-weight:600;margin-bottom:12px;color:var(--text-secondary);">Giderler</h3>
-        <div id="kpGiderListesi" style="background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;">
-          <div class="empty-state" style="padding:30px 0;"><span style="font-size:12px;">Henüz gider yok</span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <h3 class="kp-baslik" style="margin-bottom:0;">Giderler</h3>
+          <span id="kpGiderToplam" style="font-family:var(--font-mono);font-size:13px;color:var(--color-danger);font-weight:600;"></span>
+        </div>
+        <div id="kpGiderListesi">
+          <div class="empty-state" style="padding:30px 0;background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius-lg);">
+            <span style="font-size:12px;">Henüz gider yok</span>
+          </div>
         </div>
       </div>
 
-      <!-- ÖDEMELER LİSTESİ -->
+      <!-- ÖDEMELER AKORDİON -->
       <div style="margin-top:24px;margin-bottom:40px;">
-        <h3 style="font-size:14px;font-weight:600;margin-bottom:12px;color:var(--text-secondary);">Aldığım Ödemeler</h3>
-        <div id="kpOdemeListesi" style="background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;">
-          <div class="empty-state" style="padding:30px 0;"><span style="font-size:12px;">Henüz ödeme kaydı yok</span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <h3 class="kp-baslik" style="margin-bottom:0;">Aldığım Ödemeler</h3>
+          <span id="kpOdemeToplam" style="font-family:var(--font-mono);font-size:13px;color:var(--color-success);font-weight:600;"></span>
+        </div>
+        <div id="kpOdemeListesi">
+          <div class="empty-state" style="padding:30px 0;background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius-lg);">
+            <span style="font-size:12px;">Henüz ödeme kaydı yok</span>
+          </div>
         </div>
       </div>
+
+      <!-- GİDER MODAL -->
+      <div id="modalGider" class="modal-overlay hidden">
+        <div class="modal">
+          <div class="modal-header"><h3>Gider Ekle</h3><button class="btn-close" id="btnGiderModalKapat">✕</button></div>
+          <div class="modal-body">
+            <div class="form-grid-3">
+              <div class="form-group"><label>Tarih <span class="req">*</span></label><input type="date" id="giderTarih" /></div>
+              <div class="form-group"><label>Tutar (TL) <span class="req">*</span></label><input type="number" id="giderTutar" placeholder="0.00" step="0.01" /></div>
+              <div class="form-group"><label>Döviz</label><select id="giderDoviz"><option value="TL">TL</option><option value="EUR">EUR</option><option value="USD">USD</option></select></div>
+            </div>
+            <div class="form-group" style="margin-top:12px;"><label>Açıklama <span class="req">*</span></label><input type="text" id="giderAciklama" placeholder="Gider açıklaması..." /></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-ghost" id="btnGiderIptal">İptal</button>
+            <button class="btn btn-primary" id="btnGiderKaydet">Kaydet</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ÖDEME MODAL -->
+      <div id="modalOdeme" class="modal-overlay hidden">
+        <div class="modal">
+          <div class="modal-header"><h3>Ödeme Aldım</h3><button class="btn-close" id="btnOdemeModalKapat">✕</button></div>
+          <div class="modal-body">
+            <div class="form-grid-3">
+              <div class="form-group"><label>Tarih <span class="req">*</span></label><input type="date" id="odemeTarih" /></div>
+              <div class="form-group"><label>Tutar (TL) <span class="req">*</span></label><input type="number" id="odemeTutar" placeholder="0.00" step="0.01" /></div>
+              <div class="form-group"><label>Not</label><input type="text" id="odemeNot" placeholder="Opsiyonel..." /></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-ghost" id="btnOdemeIptal">İptal</button>
+            <button class="btn btn-primary" id="btnOdemeKaydet">Kaydet</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RAPOR PRINT ALANI (gizli) -->
+      <div id="kpRaporAlani" style="display:none;"></div>
     </div>
   </main>
 </div>
@@ -613,8 +655,10 @@ const Sheets = (() => {
     sevkKaydet: (kayit) => _istek('sevkKaydet', { kayit }),
     giderKaydet: (kayit) => _istek('giderKaydet', { kayit }),
     giderleriGetir: () => _istek('giderleriGetir', {}),
+    giderSil: (id) => _istek('giderSil', { id }),
     odemeKaydet: (kayit) => _istek('odemeKaydet', { kayit }),
     odemeleriGetir: () => _istek('odemeleriGetir', {}),
+    odemeSil: (id) => _istek('odemeSil', { id }),
     tahsilatKaydet: (kayit) => _istek('tahsilatKaydet', { kayit }),
     tahsilatlariGetir: (musteriAdi) => _istek('tahsilatlariGetir', { musteriAdi }),
   };
@@ -1180,81 +1224,100 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('giderTarih').value = new Date().toISOString().split('T')[0];
     document.getElementById('giderTutar').value = '';
     document.getElementById('giderAciklama').value = '';
+    document.getElementById('giderDoviz').value = 'TL';
     document.getElementById('modalGider').classList.remove('hidden');
+    document.getElementById('giderAciklama').focus();
   });
   document.getElementById('btnOdemeEkle')?.addEventListener('click', () => {
     document.getElementById('odemeTarih').value = new Date().toISOString().split('T')[0];
     document.getElementById('odemeTutar').value = '';
     document.getElementById('odemeNot').value = '';
     document.getElementById('modalOdeme').classList.remove('hidden');
+    document.getElementById('odemeTutar').focus();
   });
+  document.getElementById('btnGiderModalKapat')?.addEventListener('click', () => document.getElementById('modalGider').classList.add('hidden'));
+  document.getElementById('btnGiderIptal')?.addEventListener('click', () => document.getElementById('modalGider').classList.add('hidden'));
+  document.getElementById('modalGider')?.addEventListener('click', e => { if(e.target===e.currentTarget) e.currentTarget.classList.add('hidden'); });
+  document.getElementById('btnOdemeModalKapat')?.addEventListener('click', () => document.getElementById('modalOdeme').classList.add('hidden'));
+  document.getElementById('btnOdemeIptal')?.addEventListener('click', () => document.getElementById('modalOdeme').classList.add('hidden'));
+  document.getElementById('modalOdeme')?.addEventListener('click', e => { if(e.target===e.currentTarget) e.currentTarget.classList.add('hidden'); });
   document.getElementById('btnGiderKaydet')?.addEventListener('click', _giderKaydet);
   document.getElementById('btnOdemeKaydet')?.addEventListener('click', _odemeKaydet);
+  document.getElementById('btnKpRapor')?.addEventListener('click', _kpRaporYazdir);
+
+  // Gider/ödeme akordion + silme - event delegation
+  document.getElementById('kpGiderListesi')?.addEventListener('click', e => {
+    const silBtn = e.target.closest('.btn-sil-kucuk');
+    if (silBtn) { _giderSil(silBtn.dataset.id); return; }
+    const header = e.target.closest('.kp-satir-header');
+    if (header) header.closest('.kp-satir').classList.toggle('open');
+  });
+  document.getElementById('kpOdemeListesi')?.addEventListener('click', e => {
+    const silBtn = e.target.closest('.btn-sil-kucuk');
+    if (silBtn) { _odemeSil(silBtn.dataset.id); return; }
+    const header = e.target.closest('.kp-satir-header');
+    if (header) header.closest('.kp-satir').classList.toggle('open');
+  });
 
   // Kâr payı sayfası açılınca yükle
   document.querySelectorAll('.nav-item').forEach(item => {
-    if (item.dataset.page === 'karpay') {
-      item.addEventListener('click', _kpYukle);
-    }
+    if (item.dataset.page === 'karpay') item.addEventListener('click', _kpYukle);
   });
 });
 
 // ============================================================
-// KAR PAYI
+// KAR PAYI FONKSİYONLARI
 // ============================================================
 
+let _kpGiderler = [];
+let _kpOdemeler = [];
+
 async function _kpYukle() {
+  const tbody = document.getElementById('kpKarBody');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="11" class="loading-row"><span class="spinner"></span> Yükleniyor...</td></tr>';
   try {
     const [giderler, odemeler] = await Promise.all([
       Sheets.giderleriGetir(),
       Sheets.odemeleriGetir(),
     ]);
-    _kpHesapla(giderler, odemeler);
-    _kpGiderListeRender(giderler);
-    _kpOdemeListeRender(odemeler);
+    _kpGiderler = giderler || [];
+    _kpOdemeler = odemeler || [];
+    _kpHesapla();
+    _kpGiderListeRender();
+    _kpOdemeListeRender();
   } catch(e) {
     toast('Kâr payı yüklenemedi: ' + e.message, 'error');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:20px;color:var(--color-danger);font-size:12px;">Yükleme hatası</td></tr>';
   }
 }
 
-function _kpHesapla(giderler, odemeler) {
-  // Siparişlerden hesapla
-  let toplamSatis = 0, toplamMaliyet = 0;
-  let karTablosuSatirlar = [];
+function _kpHesapla() {
+  let toplamSatis = 0, toplamMaliyet = 0, satirlar = [];
 
   (_tumSiparisler || []).forEach(s => {
     let sipToplam = 0, maliyetToplam = 0, sipMiktar = 0, uretimMiktar = 0;
     (s.kalemler || []).forEach(k => {
-      const sevk = k.sevkMiktar || 0;
-      const uretim = k.uretimMiktar || 0;
-      const satisTl = sevk * (k.satisFiyat || 0) * (k.satisKur || 0);
-      const maliyetTl = uretim * (k.alisFiyat || 0) * (k.alisKur || 0);
-      sipToplam += satisTl;
-      maliyetToplam += maliyetTl;
-      sipMiktar += k.siparisMiktar || 0;
+      const sevk = Number(k.sevkMiktar)||0;
+      const uretim = Number(k.uretimMiktar)||0;
+      sipToplam += sevk * (Number(k.satisFiyat)||0) * (Number(k.satisKur)||0);
+      maliyetToplam += uretim * (Number(k.alisFiyat)||0) * (Number(k.alisKur)||0);
+      sipMiktar += Number(k.siparisMiktar)||0;
       uretimMiktar += uretim;
     });
-
     toplamSatis += sipToplam;
     toplamMaliyet += maliyetToplam;
-
     const brutKar = sipToplam - maliyetToplam;
-    const benimPayim = brutKar * 0.5;
-    const sirketPayi = brutKar * 0.5;
-    const fark = uretimMiktar - sipMiktar;
-
-    karTablosuSatirlar.push({ s, sipMiktar, uretimMiktar, fark, sipToplam, maliyetToplam, brutKar, benimPayim, sirketPayi });
+    satirlar.push({ s, sipMiktar, uretimMiktar, fark: uretimMiktar-sipMiktar, sipToplam, maliyetToplam, brutKar, benimPayim: brutKar*0.5, sirketPayi: brutKar*0.5 });
   });
 
   const brutKar = toplamSatis - toplamMaliyet;
   const benimPayim = brutKar * 0.5;
-  const toplamGider = (giderler || []).reduce((t, g) => t + (Number(g.tutarTl) || Number(g.tutar) || 0), 0);
+  const toplamGider = _kpGiderler.reduce((t,g) => t+(Number(g.tutarTl)||Number(g.tutar)||0), 0);
   const giderPayim = toplamGider * 0.5;
   const netAlacak = benimPayim - giderPayim;
-  const alinanToplam = (odemeler || []).reduce((t, o) => t + (Number(o.tutar) || 0), 0);
+  const alinanToplam = _kpOdemeler.reduce((t,o) => t+(Number(o.tutar)||0), 0);
   const kalanAlacak = netAlacak - alinanToplam;
 
-  // Kartları güncelle
   document.getElementById('kpToplam').textContent = _fmtTl(toplamSatis);
   document.getElementById('kpMaliyet').textContent = _fmtTl(toplamMaliyet);
   document.getElementById('kpBrutKar').textContent = _fmtTl(brutKar);
@@ -1264,23 +1327,19 @@ function _kpHesapla(giderler, odemeler) {
   document.getElementById('kpAlinan').textContent = _fmtTl(alinanToplam);
   document.getElementById('kpKalan').textContent = _fmtTl(kalanAlacak);
 
-  // Tablo
   const tbody = document.getElementById('kpKarBody');
   if (!tbody) return;
-  if (karTablosuSatirlar.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">Henüz sipariş yok</td></tr>';
-    return;
-  }
-  tbody.innerHTML = karTablosuSatirlar.map(({ s, sipMiktar, uretimMiktar, fark, sipToplam, maliyetToplam, brutKar, benimPayim, sirketPayi }) => {
-    const farkClass = fark === 0 ? 'kalem-fark-sifir' : fark > 0 ? 'kalem-fark-pos' : 'kalem-fark-neg';
-    const farkStr = fark === 0 ? '+0' : fark > 0 ? '+' + _fmt(fark) : _fmt(fark);
+  if (satirlar.length === 0) { tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">Henüz sipariş yok</td></tr>'; return; }
+  tbody.innerHTML = satirlar.map(({s, sipMiktar, uretimMiktar, fark, sipToplam, maliyetToplam, brutKar, benimPayim, sirketPayi}) => {
+    const fc = fark===0?'kalem-fark-sifir':fark>0?'kalem-fark-pos':'kalem-fark-neg';
+    const fs = fark===0?'+0':fark>0?'+'+_fmt(fark):_fmt(fark);
     return `<tr>
-      <td style="font-size:12px;">${_fmtTarih(s.tarih)}</td>
-      <td style="font-weight:600;">${_esc(s.musteriAdi)}</td>
+      <td style="font-size:11px;">${_fmtTarih(s.tarih)}</td>
+      <td style="font-weight:600;font-size:12px;">${_esc(s.musteriAdi)}</td>
       <td><span class="sip-kod" style="font-size:10px;">${s.kod}</span></td>
       <td class="kalem-sayi">${_fmt(sipMiktar)}</td>
       <td class="kalem-sayi" style="font-weight:600;">${_fmt(uretimMiktar)}</td>
-      <td class="kalem-sayi ${farkClass}">${farkStr}</td>
+      <td class="kalem-sayi ${fc}">${fs}</td>
       <td class="kalem-sayi" style="color:var(--color-success);">${_fmtTl(sipToplam)}</td>
       <td class="kalem-sayi" style="color:var(--color-danger);">${_fmtTl(maliyetToplam)}</td>
       <td class="kalem-sayi" style="font-weight:600;">${_fmtTl(brutKar)}</td>
@@ -1290,75 +1349,167 @@ function _kpHesapla(giderler, odemeler) {
   }).join('');
 }
 
-function _kpGiderListeRender(giderler) {
+function _kpGiderListeRender() {
   const el = document.getElementById('kpGiderListesi');
+  const toplamEl = document.getElementById('kpGiderToplam');
   if (!el) return;
-  if (!giderler || giderler.length === 0) {
-    el.innerHTML = '<div class="empty-state" style="padding:30px 0;"><span style="font-size:12px;">Henüz gider yok</span></div>';
+  const toplam = _kpGiderler.reduce((t,g) => t+(Number(g.tutarTl)||Number(g.tutar)||0), 0);
+  if (toplamEl) toplamEl.textContent = toplam > 0 ? 'Toplam: '+_fmtTl(toplam) : '';
+  if (_kpGiderler.length === 0) {
+    el.innerHTML = '<div class="empty-state" style="padding:24px 0;background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius-lg);"><span style="font-size:12px;">Henüz gider yok</span></div>';
     return;
   }
-  el.innerHTML = `<table class="kalem-table">
-    <thead><tr><th>Tarih</th><th>Açıklama</th><th>Döviz</th><th style="text-align:right">Tutar (TL)</th><th style="text-align:right">Payım (%50)</th></tr></thead>
-    <tbody>${giderler.map(g => `<tr>
-      <td style="font-size:12px;">${_fmtTarih(g.tarih)}</td>
-      <td>${_esc(g.aciklama)}</td>
-      <td>${g.doviz || 'TL'}</td>
-      <td class="kalem-sayi" style="color:var(--color-danger);">${_fmtTl(Number(g.tutarTl)||Number(g.tutar)||0)}</td>
-      <td class="kalem-sayi" style="color:var(--color-danger);">${_fmtTl((Number(g.tutarTl)||Number(g.tutar)||0)*0.5)}</td>
-    </tr>`).join('')}</tbody>
-  </table>`;
+  el.innerHTML = _kpGiderler.map(g => {
+    const tutar = Number(g.tutarTl)||Number(g.tutar)||0;
+    return `<div class="kp-satir">
+      <div class="kp-satir-header">
+        <span class="kp-satir-tarih">${_fmtTarih(g.tarih)}</span>
+        <span class="kp-satir-aciklama">${_esc(g.aciklama)}</span>
+        <span style="font-size:10px;color:var(--text-muted);background:var(--bg-main);padding:2px 6px;border-radius:4px;flex-shrink:0;">${g.doviz||'TL'}</span>
+        <span class="kp-satir-tutar" style="color:var(--color-danger);">${_fmtTl(tutar)}</span>
+        <span class="kp-satir-chevron">▼</span>
+      </div>
+      <div class="kp-satir-body">
+        <span>Payım (%50): <strong style="color:var(--color-danger);">${_fmtTl(tutar*0.5)}</strong></span>
+        <button class="btn-sil-kucuk" data-id="${g.id}">✕ Sil</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
-function _kpOdemeListeRender(odemeler) {
+function _kpOdemeListeRender() {
   const el = document.getElementById('kpOdemeListesi');
+  const toplamEl = document.getElementById('kpOdemeToplam');
   if (!el) return;
-  if (!odemeler || odemeler.length === 0) {
-    el.innerHTML = '<div class="empty-state" style="padding:30px 0;"><span style="font-size:12px;">Henüz ödeme kaydı yok</span></div>';
+  const toplam = _kpOdemeler.reduce((t,o) => t+(Number(o.tutar)||0), 0);
+  if (toplamEl) toplamEl.textContent = toplam > 0 ? 'Toplam: '+_fmtTl(toplam) : '';
+  if (_kpOdemeler.length === 0) {
+    el.innerHTML = '<div class="empty-state" style="padding:24px 0;background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius-lg);"><span style="font-size:12px;">Henüz ödeme kaydı yok</span></div>';
     return;
   }
-  el.innerHTML = `<table class="kalem-table">
-    <thead><tr><th>Tarih</th><th>Not</th><th style="text-align:right">Tutar (TL)</th></tr></thead>
-    <tbody>${odemeler.map(o => `<tr>
-      <td style="font-size:12px;">${_fmtTarih(o.tarih)}</td>
-      <td>${_esc(o.not||'—')}</td>
-      <td class="kalem-sayi" style="color:var(--color-success);font-weight:600;">${_fmtTl(Number(o.tutar)||0)}</td>
-    </tr>`).join('')}</tbody>
-  </table>`;
+  el.innerHTML = _kpOdemeler.map(o => `
+    <div class="kp-satir">
+      <div class="kp-satir-header">
+        <span class="kp-satir-tarih">${_fmtTarih(o.tarih)}</span>
+        <span class="kp-satir-aciklama">${_esc(o.not||'Ödeme alındı')}</span>
+        <span class="kp-satir-tutar" style="color:var(--color-success);">+${_fmtTl(Number(o.tutar)||0)}</span>
+        <span class="kp-satir-chevron">▼</span>
+      </div>
+      <div class="kp-satir-body">
+        <span>Tutar: <strong style="color:var(--color-success);">${_fmtTl(Number(o.tutar)||0)}</strong></span>
+        <button class="btn-sil-kucuk" data-id="${o.id}">✕ Sil</button>
+      </div>
+    </div>`).join('');
 }
 
 async function _giderKaydet() {
   const tarih = document.getElementById('giderTarih').value;
-  const tutar = parseFloat(document.getElementById('giderTutar').value) || 0;
+  const tutar = parseFloat(document.getElementById('giderTutar').value)||0;
   const aciklama = document.getElementById('giderAciklama').value.trim();
   const doviz = document.getElementById('giderDoviz').value;
-  if (!tarih || tutar <= 0 || !aciklama) { toast('Tüm alanları doldurun', 'error'); return; }
-
+  if (!tarih||tutar<=0||!aciklama) { toast('Tüm alanları doldurun','error'); return; }
   const btn = document.getElementById('btnGiderKaydet');
-  btn.disabled = true; btn.textContent = 'Kaydediliyor...';
+  btn.disabled=true; btn.textContent='Kaydediliyor...';
   try {
-    await Sheets.giderKaydet({ id: 'GD_'+Date.now(), tarih, aciklama, tutar, doviz, kur: 1, tutarTl: tutar });
+    await Sheets.giderKaydet({ id:'GD_'+Date.now(), tarih, aciklama, tutar, doviz, kur:1, tutarTl:tutar });
     document.getElementById('modalGider').classList.add('hidden');
-    toast('Gider kaydedildi', 'success');
-    _kpYukle();
-  } catch(e) { toast('Hata: '+e.message, 'error'); }
-  finally { btn.disabled = false; btn.textContent = 'Kaydet'; }
+    toast('Gider kaydedildi','success');
+    await _kpYukle();
+  } catch(e) { toast('Hata: '+e.message,'error'); }
+  finally { btn.disabled=false; btn.textContent='Kaydet'; }
 }
 
 async function _odemeKaydet() {
   const tarih = document.getElementById('odemeTarih').value;
-  const tutar = parseFloat(document.getElementById('odemeTutar').value) || 0;
+  const tutar = parseFloat(document.getElementById('odemeTutar').value)||0;
   const not = document.getElementById('odemeNot').value.trim();
-  if (!tarih || tutar <= 0) { toast('Tarih ve tutar zorunlu', 'error'); return; }
-
+  if (!tarih||tutar<=0) { toast('Tarih ve tutar zorunlu','error'); return; }
   const btn = document.getElementById('btnOdemeKaydet');
-  btn.disabled = true; btn.textContent = 'Kaydediliyor...';
+  btn.disabled=true; btn.textContent='Kaydediliyor...';
   try {
-    await Sheets.odemeKaydet({ id: 'OD_'+Date.now(), tarih, tutar, not, aciklama: 'Ödeme alındı' });
+    await Sheets.odemeKaydet({ id:'OD_'+Date.now(), tarih, tutar, not, aciklama:'Ödeme alındı' });
     document.getElementById('modalOdeme').classList.add('hidden');
-    toast('Ödeme kaydedildi', 'success');
-    _kpYukle();
-  } catch(e) { toast('Hata: '+e.message, 'error'); }
-  finally { btn.disabled = false; btn.textContent = 'Kaydet'; }
+    toast('Ödeme kaydedildi','success');
+    await _kpYukle();
+  } catch(e) { toast('Hata: '+e.message,'error'); }
+  finally { btn.disabled=false; btn.textContent='Kaydet'; }
+}
+
+async function _giderSil(id) {
+  if (!confirm('Bu gideri silmek istediğinize emin misiniz?')) return;
+  try {
+    await Sheets.giderSil(id);
+    toast('Gider silindi','info');
+    await _kpYukle();
+  } catch(e) { toast('Hata: '+e.message,'error'); }
+}
+
+async function _odemeSil(id) {
+  if (!confirm('Bu ödemeyi silmek istediğinize emin misiniz?')) return;
+  try {
+    await Sheets.odemeSil(id);
+    toast('Ödeme silindi','info');
+    await _kpYukle();
+  } catch(e) { toast('Hata: '+e.message,'error'); }
+}
+
+function _kpRaporYazdir() {
+  const bugun = new Date().toLocaleDateString('tr-TR');
+  const satirlar = Array.from(document.querySelectorAll('#kpKarBody tr')).map(tr => {
+    const td = tr.querySelectorAll('td');
+    if (td.length < 11) return '';
+    return (td[0].textContent.trim()).padEnd(12) +
+           (td[1].textContent.trim()).padEnd(16) +
+           (td[2].textContent.trim()).padEnd(14) +
+           (td[6].textContent.trim()).padEnd(14) +
+           (td[7].textContent.trim()).padEnd(14) +
+           (td[9].textContent.trim());
+  }).filter(Boolean).join('\n');
+
+  const rapor = `SAKA TAKiP - KAR PAYI RAPORU
+${'='.repeat(60)}
+Rapor Tarihi : ${bugun}
+${'='.repeat(60)}
+
+OZET
+${'-'.repeat(40)}
+Toplam Satis/Teslimat : ${document.getElementById('kpToplam').textContent}
+Toplam Maliyet        : ${document.getElementById('kpMaliyet').textContent}
+Brut Kar              : ${document.getElementById('kpBrutKar').textContent}
+Benim Payim (%50)     : ${document.getElementById('kpBenimPayim').textContent}
+Gider Payim (%50)     : ${document.getElementById('kpGiderPayim').textContent}
+Net Alacagim          : ${document.getElementById('kpNetAlacak').textContent}
+Alinan Toplam         : ${document.getElementById('kpAlinan').textContent}
+KALAN ALACAGIM        : ${document.getElementById('kpKalan').textContent}
+
+SIPARIS BAZINDA KAR
+${'-'.repeat(60)}
+${'TARiH'.padEnd(12)}${'MUSTERi'.padEnd(16)}${'KOD'.padEnd(14)}${'SATiS TL'.padEnd(14)}${'MALiYET'.padEnd(14)}${'BENiM PAYIM'}
+${'-'.repeat(84)}
+${satirlar || '(Siparis bulunamadi)'}
+
+GiDERLER
+${'-'.repeat(40)}
+${_kpGiderler.map(g=>`${_fmtTarih(g.tarih).padEnd(12)}${g.aciklama.substring(0,20).padEnd(22)}${_fmtTl(Number(g.tutarTl)||Number(g.tutar)||0)}`).join('\n')||'(Gider bulunamadi)'}
+
+ALINAN ODEMELER
+${'-'.repeat(40)}
+${_kpOdemeler.map(o=>`${_fmtTarih(o.tarih).padEnd(12)}${(o.not||'Odeme alindi').substring(0,20).padEnd(22)}${_fmtTl(Number(o.tutar)||0)}`).join('\n')||'(Odeme bulunamadi)'}
+
+${'='.repeat(60)}
+SAKA TAKiP - Sistem Ciktisi
+${'='.repeat(60)}`;
+
+  const w = window.open('','_blank','width=750,height=700');
+  w.document.write(`<!DOCTYPE html><html><head><title>Kar Payi Raporu - ${bugun}</title>
+    <style>
+      body { font-family: 'Courier New', monospace; font-size: 12px; padding: 30px; background: #fff; color: #000; white-space: pre; line-height: 1.6; }
+      @media print { body { padding: 10px; font-size: 11px; } @page { margin: 1cm; } }
+    </style></head>
+    <body>${rapor.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</body></html>`);
+  w.document.close();
+  w.focus();
+  setTimeout(() => w.print(), 500);
 }
 </script>
 </body>
