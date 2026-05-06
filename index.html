@@ -547,6 +547,10 @@
   function show(){
     document.getElementById('gE').classList.add('hidden');
     document.getElementById('app').style.display='';
+    // Giriş sonrası verileri yükle
+    if(typeof _siparisleriYukle === 'function') {
+      setTimeout(function(){ _siparisleriYukle(true); }, 100);
+    }
   }
   function kontrol(){
     if(sessionStorage.getItem(K)==='1'){show();return true;}
