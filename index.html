@@ -33,7 +33,7 @@
   </div>
 </div>
 
-<div id="app">
+<div id="app" style="display:none;">
   <!-- SIDEBAR -->
   <nav id="sidebar">
     <div class="sidebar-logo">
@@ -517,6 +517,7 @@
   function girisKontrol() {
     if (sessionStorage.getItem(SESSION_KEY) === '1') {
       document.getElementById('girisEkrani').classList.add('hidden');
+      document.getElementById('app').style.display = '';
       return true;
     }
     return false;
@@ -539,6 +540,7 @@
         ekran.classList.add('fade-out');
         setTimeout(() => {
           ekran.classList.add('hidden');
+          document.getElementById('app').style.display = '';
           matrixDurdur();
         }, 800);
       }, 1800);
