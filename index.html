@@ -50,9 +50,6 @@
 </div>
 
 
-<div id="girisEkrani">
-  <canvas id="matrixCanvas"></canvas>
-  <div id="helloSaka">HELLO SAKA</div>
   <div class="g-wrap">
     <div class="g-box">
       <div class="g-k tl"></div><div class="g-k tr"></div>
@@ -69,6 +66,22 @@
       <div class="g-hata" id="girisHata"></div>
       <div class="g-ver">SKTV4 · 2026</div>
     </div>
+  </div>
+</div>
+
+<div id="gE">
+  <canvas id="mC"></canvas>
+  <div id="hS">HELLO SAKA</div>
+  <div id="gB">
+    <div class="gK a"></div><div class="gK b"></div><div class="gK c"></div><div class="gK d"></div>
+    <div id="gL"><span id="gI">◈</span><span id="gN">ÖZDEMİR SAKA</span></div>
+    <div id="gA">// ÖN MUHASEBE SİSTEMİ //</div>
+    <div id="gY"></div>
+    <span id="gLb">ERİŞİM KODU</span>
+    <input type="password" id="gIn" placeholder="· · · · · · · ·" maxlength="20"/>
+    <button id="gBt">SİSTEME GİRİŞ</button>
+    <div id="gH"></div>
+    <div id="gV">SKTV4 · 2026</div>
   </div>
 </div>
 
@@ -511,65 +524,56 @@
 
 
 
+
+
 <script>
 (function(){
-  const SIFRE='6161csr', KEY='sktv3_giris';
-  const canvas=document.getElementById('matrixCanvas');
-  const ctx=canvas.getContext('2d');
-  let aid;
-  const chars='アイウエオカキクケコ0123456789ABCDEF<>[]{}|#@'.split('');
-  let cols,drops;
-  function init(){
-    canvas.width=window.innerWidth; canvas.height=window.innerHeight;
-    cols=Math.floor(canvas.width/14); drops=Array(cols).fill(1);
-  }
+  var S='6161csr',K='sktv3_g';
+  var c=document.getElementById('mC'),ctx=c.getContext('2d'),aid,cols,drops;
+  var ch='アイウエオカキクケコ0123456789ABCDEF<>[]{}|#@'.split('');
+  function init(){c.width=innerWidth;c.height=innerHeight;cols=Math.floor(c.width/14);drops=Array(cols).fill(1);}
   function draw(){
-    ctx.fillStyle='rgba(0,0,0,0.05)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='rgba(0,0,0,0.05)';ctx.fillRect(0,0,c.width,c.height);
     ctx.font='14px Courier New';
-    for(let i=0;i<drops.length;i++){
+    for(var i=0;i<drops.length;i++){
       ctx.fillStyle=Math.random()>.9?'#80d8ff':'#005577';
-      ctx.fillText(chars[Math.floor(Math.random()*chars.length)],i*14,drops[i]*14);
-      if(drops[i]*14>canvas.height&&Math.random()>.975)drops[i]=0;
+      ctx.fillText(ch[Math.floor(Math.random()*ch.length)],i*14,drops[i]*14);
+      if(drops[i]*14>c.height&&Math.random()>.975)drops[i]=0;
       drops[i]++;
     }
   }
-  function start(){ init(); aid=setInterval(draw,40); window.addEventListener('resize',init); }
-  function stop(){ clearInterval(aid); }
+  function start(){init();aid=setInterval(draw,40);window.addEventListener('resize',init);}
+  function stop(){clearInterval(aid);}
+  function show(){
+    document.getElementById('gE').classList.add('hidden');
+    document.getElementById('app').style.display='';
+  }
   function kontrol(){
-    if(sessionStorage.getItem(KEY)==='1'){
-      document.getElementById('girisEkrani').classList.add('hidden');
-      document.getElementById('app').style.display='';
-      return true;
-    }
+    if(sessionStorage.getItem(K)==='1'){show();return true;}
     return false;
   }
   function giris(){
-    const v=document.getElementById('girisInput').value;
-    if(v===SIFRE){
-      sessionStorage.setItem(KEY,'1');
-      document.querySelector('.g-box').style.cssText='transition:opacity .5s;opacity:0';
-      document.getElementById('helloSaka').classList.add('goster');
-      setTimeout(()=>{
-        const e=document.getElementById('girisEkrani');
-        e.classList.add('fade-out');
-        setTimeout(()=>{
-          e.classList.add('hidden');
-          document.getElementById('app').style.display='';
-          stop();
-        },800);
+    var v=document.getElementById('gIn').value;
+    if(v===S){
+      sessionStorage.setItem(K,'1');
+      document.getElementById('gB').style.cssText='transition:opacity .5s;opacity:0';
+      document.getElementById('hS').classList.add('on');
+      setTimeout(function(){
+        document.getElementById('gE').classList.add('fo');
+        setTimeout(function(){show();stop();},800);
       },1800);
     } else {
-      const inp=document.getElementById('girisInput');
-      document.getElementById('girisHata').textContent='// ERİŞİM REDDEDİLDİ //';
-      inp.style.borderColor='#ff4466'; inp.style.boxShadow='0 0 12px rgba(255,68,102,.4)';
+      var inp=document.getElementById('gIn'),h=document.getElementById('gH');
+      h.textContent='// ERİŞİM REDDEDİLDİ //';
+      inp.style.borderColor='#ff4466';inp.style.boxShadow='0 0 12px rgba(255,68,102,.4)';
       inp.value='';
-      setTimeout(()=>{ inp.style.borderColor=''; inp.style.boxShadow=''; document.getElementById('girisHata').textContent=''; inp.focus(); },1500);
+      setTimeout(function(){inp.style.borderColor='';inp.style.boxShadow='';h.textContent='';inp.focus();},1500);
     }
   }
-  document.addEventListener('DOMContentLoaded',()=>{
-    if(!kontrol()){ start(); setTimeout(()=>document.getElementById('girisInput').focus(),100); }
-    document.getElementById('girisBtn').addEventListener('click',giris);
-    document.getElementById('girisInput').addEventListener('keydown',e=>{ if(e.key==='Enter')giris(); });
+  document.addEventListener('DOMContentLoaded',function(){
+    if(!kontrol()){start();setTimeout(function(){document.getElementById('gIn').focus();},100);}
+    document.getElementById('gBt').addEventListener('click',giris);
+    document.getElementById('gIn').addEventListener('keydown',function(e){if(e.key==='Enter')giris();});
   });
 })();
 </script>
