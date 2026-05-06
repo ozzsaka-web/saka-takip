@@ -1,7 +1,7 @@
 const API = (() => {
 
   const CONFIG = {
-    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwUeHdeJIJG_mb4Iy7yIeFJMon8CJ6lx6cEj0UtMJYjZazcRABLAXq36MtiooZd9M9m/exec', 
+    SCRIPT_URL: 'https://script.google.com/macros/library/d/1-ienJflf9bdEwHO8FxSabOe7NMdf_No0PVo1Xf-BwE8X9ISwj03zSPOJ/11/exec', 
     SPREADSHEET_ID: '1KJ4P-BZLR3kSeaT2H7hv9FiDvHzR-tUM79trPcucKus',
     SIPARIS_KOD_PREFIX: 'STK',
   };
