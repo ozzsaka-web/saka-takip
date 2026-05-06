@@ -19,10 +19,6 @@
 </div>
 
 
-<!-- GİRİŞ EKRANI -->
-<div id="girisEkrani">
-  <canvas id="matrixCanvas"></canvas>
-  <div id="helloSaka">HELLO SAKA</div>
   <div class="giris-kutu">
     <div class="giris-logo">◈</div>
     <div class="giris-baslik">SAKA TAKİP</div>
@@ -30,6 +26,49 @@
     <input type="password" class="giris-input" id="girisInput" placeholder="········" maxlength="20" />
     <button class="giris-btn" id="girisBtn">[ GİRİŞ ]</button>
     <div class="giris-hata" id="girisHata"></div>
+  </div>
+</div>
+
+
+  <div class="giris-wrapper">
+    <div class="giris-kutu">
+      <div class="kose-tl"></div><div class="kose-tr"></div>
+      <div class="kose-bl"></div><div class="kose-br"></div>
+      <div class="giris-logo-satir">
+        <span class="giris-logo-ikon">◈</span>
+        <span class="giris-logo-yazi">ÖZDEMİR SAKA</span>
+      </div>
+      <div class="giris-logo-alt">// ÖN MUHASEBE SİSTEMİ //</div>
+      <div class="giris-ayrac"></div>
+      <span class="giris-input-label">ERİŞİM KODU</span>
+      <input type="password" class="giris-input" id="girisInput" placeholder="· · · · · · · ·" maxlength="20" />
+      <button class="giris-btn" id="girisBtn">SİSTEME GİRİŞ</button>
+      <div class="giris-hata" id="girisHata"></div>
+      <div class="giris-versiyon">SKTV4 · 2026</div>
+    </div>
+  </div>
+</div>
+
+
+<div id="girisEkrani">
+  <canvas id="matrixCanvas"></canvas>
+  <div id="helloSaka">HELLO SAKA</div>
+  <div class="g-wrap">
+    <div class="g-box">
+      <div class="g-k tl"></div><div class="g-k tr"></div>
+      <div class="g-k bl"></div><div class="g-k br"></div>
+      <div class="g-logo">
+        <span class="g-ikon">◈</span>
+        <span class="g-isim">ÖZDEMİR SAKA</span>
+      </div>
+      <div class="g-alt">// ÖN MUHASEBE SİSTEMİ //</div>
+      <div class="g-ayrac"></div>
+      <span class="g-label">ERİŞİM KODU</span>
+      <input type="password" class="g-input" id="girisInput" placeholder="· · · · · · · ·" maxlength="20" />
+      <button class="g-btn" id="girisBtn">SİSTEME GİRİŞ</button>
+      <div class="g-hata" id="girisHata"></div>
+      <div class="g-ver">SKTV4 · 2026</div>
+    </div>
   </div>
 </div>
 
@@ -466,110 +505,71 @@
 
 
 
+
+
+
+
+
+
 <script>
-(function() {
-  const SIFRE = '6161csr';
-  const SESSION_KEY = 'sktv3_giris';
-
-  // MATRIX CANVAS
-  const canvas = document.getElementById('matrixCanvas');
-  const ctx = canvas.getContext('2d');
-  let animId;
-  const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEF<>[]{}|#@'.split('');
-  let cols, drops;
-
-  function matrixInit() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const fs = 14;
-    cols = Math.floor(canvas.width / fs);
-    drops = Array(cols).fill(1);
+(function(){
+  const SIFRE='6161csr', KEY='sktv3_giris';
+  const canvas=document.getElementById('matrixCanvas');
+  const ctx=canvas.getContext('2d');
+  let aid;
+  const chars='アイウエオカキクケコ0123456789ABCDEF<>[]{}|#@'.split('');
+  let cols,drops;
+  function init(){
+    canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+    cols=Math.floor(canvas.width/14); drops=Array(cols).fill(1);
   }
-
-  function matrixDraw() {
-    ctx.fillStyle = 'rgba(0,0,0,0.05)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    const fs = 14;
-    ctx.font = fs + 'px IBM Plex Mono, monospace';
-
-    for (let i = 0; i < drops.length; i++) {
-      // Bazıları parlak, bazıları soluk
-      const bright = Math.random() > 0.9;
-      ctx.fillStyle = bright ? '#80d8ff' : '#0077aa';
-      const char = chars[Math.floor(Math.random() * chars.length)];
-      ctx.fillText(char, i * fs, drops[i] * fs);
-      if (drops[i] * fs > canvas.height && Math.random() > 0.975) drops[i] = 0;
+  function draw(){
+    ctx.fillStyle='rgba(0,0,0,0.05)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.font='14px Courier New';
+    for(let i=0;i<drops.length;i++){
+      ctx.fillStyle=Math.random()>.9?'#80d8ff':'#005577';
+      ctx.fillText(chars[Math.floor(Math.random()*chars.length)],i*14,drops[i]*14);
+      if(drops[i]*14>canvas.height&&Math.random()>.975)drops[i]=0;
       drops[i]++;
     }
   }
-
-  function matrixBaslat() {
-    matrixInit();
-    animId = setInterval(matrixDraw, 40);
-    window.addEventListener('resize', matrixInit);
-  }
-
-  function matrixDurdur() {
-    clearInterval(animId);
-  }
-
-  // GİRİŞ
-  function girisKontrol() {
-    if (sessionStorage.getItem(SESSION_KEY) === '1') {
+  function start(){ init(); aid=setInterval(draw,40); window.addEventListener('resize',init); }
+  function stop(){ clearInterval(aid); }
+  function kontrol(){
+    if(sessionStorage.getItem(KEY)==='1'){
       document.getElementById('girisEkrani').classList.add('hidden');
-      document.getElementById('app').style.display = '';
+      document.getElementById('app').style.display='';
       return true;
     }
     return false;
   }
-
-  function girisYap() {
-    const val = document.getElementById('girisInput').value;
-    if (val === SIFRE) {
-      sessionStorage.setItem(SESSION_KEY, '1');
-      document.getElementById('girisHata').textContent = '';
-      // HELLO SAKA göster
-      const hello = document.getElementById('helloSaka');
-      const kutu = document.querySelector('.giris-kutu');
-      kutu.style.transition = 'opacity 0.5s';
-      kutu.style.opacity = '0';
-      hello.classList.add('goster');
-      // Biraz bekle sonra kapat
-      setTimeout(() => {
-        const ekran = document.getElementById('girisEkrani');
-        ekran.classList.add('fade-out');
-        setTimeout(() => {
-          ekran.classList.add('hidden');
-          document.getElementById('app').style.display = '';
-          matrixDurdur();
-        }, 800);
-      }, 1800);
+  function giris(){
+    const v=document.getElementById('girisInput').value;
+    if(v===SIFRE){
+      sessionStorage.setItem(KEY,'1');
+      document.querySelector('.g-box').style.cssText='transition:opacity .5s;opacity:0';
+      document.getElementById('helloSaka').classList.add('goster');
+      setTimeout(()=>{
+        const e=document.getElementById('girisEkrani');
+        e.classList.add('fade-out');
+        setTimeout(()=>{
+          e.classList.add('hidden');
+          document.getElementById('app').style.display='';
+          stop();
+        },800);
+      },1800);
     } else {
-      const hata = document.getElementById('girisHata');
-      hata.textContent = '// ERİŞİM REDDEDİLDİ //';
-      // Shake efekti
-      const input = document.getElementById('girisInput');
-      input.style.borderColor = '#ff4466';
-      input.style.boxShadow = '0 0 12px rgba(255,68,102,0.5)';
-      input.value = '';
-      setTimeout(() => {
-        input.style.borderColor = '';
-        input.style.boxShadow = '';
-        hata.textContent = '';
-        input.focus();
-      }, 1500);
+      const inp=document.getElementById('girisInput');
+      document.getElementById('girisHata').textContent='// ERİŞİM REDDEDİLDİ //';
+      inp.style.borderColor='#ff4466'; inp.style.boxShadow='0 0 12px rgba(255,68,102,.4)';
+      inp.value='';
+      setTimeout(()=>{ inp.style.borderColor=''; inp.style.boxShadow=''; document.getElementById('girisHata').textContent=''; inp.focus(); },1500);
     }
   }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    if (!girisKontrol()) {
-      matrixBaslat();
-      setTimeout(() => document.getElementById('girisInput').focus(), 100);
-    }
-    document.getElementById('girisBtn').addEventListener('click', girisYap);
-    document.getElementById('girisInput').addEventListener('keydown', e => {
-      if (e.key === 'Enter') girisYap();
-    });
+  document.addEventListener('DOMContentLoaded',()=>{
+    if(!kontrol()){ start(); setTimeout(()=>document.getElementById('girisInput').focus(),100); }
+    document.getElementById('girisBtn').addEventListener('click',giris);
+    document.getElementById('girisInput').addEventListener('keydown',e=>{ if(e.key==='Enter')giris(); });
   });
 })();
 </script>
