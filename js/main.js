@@ -290,6 +290,7 @@ function _uretimModalAc(kalemId, siparisKodu) {
   document.getElementById('uretimMiktar').value = '';
   document.getElementById('uretimAlisFiyat').value = kalem.alisFiyat||'';
   document.getElementById('uretimAlisKur').value = kalem.alisKur||'';
+  document.getElementById('uretimAlisDoviz').value = kalem.alisDoviz || siparis.doviz || 'EUR';
   document.getElementById('uretimHesap').textContent = '';
   document.getElementById('modalUretim').classList.remove('hidden');
   document.getElementById('uretimMiktar').focus();
@@ -300,9 +301,10 @@ function _uretimHesapla() {
   const a = parseFloat(document.getElementById('uretimAlisFiyat').value)||0;
   const k = parseFloat(document.getElementById('uretimAlisKur').value)||0;
   const el = document.getElementById('uretimHesap');
+  const dovizLabel = document.getElementById('uretimAlisDoviz')?.value || _uretimKayit?.siparis?.doviz || '';
   if (m>0&&a>0&&k>0) {
     const td = m*a, ttl = td*k;
-    el.textContent = `${_fmt(m)} m × ${a} ${_uretimKayit?.siparis?.doviz||''} = ${_fmt(td)} ${_uretimKayit?.siparis?.doviz||''}   →   ${_fmtTl(ttl)}`;
+    el.textContent = `${_fmt(m)} m × ${a} ${dovizLabel} = ${_fmt(td)} ${dovizLabel}   →   ${_fmtTl(ttl)}`;
   } else el.textContent='';
 }
 
@@ -315,15 +317,35 @@ async function _uretimKaydet() {
   if (miktar<=0){toast('Üretim miktarı girilmeli','error');return;}
   if (alis<=0){toast('Alış fiyatı girilmeli','error');return;}
   if (kur<=0){toast('Alış kuru girilmeli','error');return;}
-  const kayit = { id:'UR_'+Date.now(), siparisKodu:siparis.kod, kalemId:kalem.id, miktar, alisFiyat:alis, alisKur:kur, tarih:new Date().toISOString() };
+  const alisDoviz = document.getElementById('uretimAlisDoviz')?.value || siparis.doviz || 'EUR';
+  const kayit = { id:'UR_'+Date.now(), siparisKodu:siparis.kod, kalemId:kalem.id, miktar, alisFiyat:alis, alisKur:kur, alisDoviz, tarih:new Date().toISOString() };
   const btn = document.getElementById('btnUretimKaydet');
   btn.disabled=true; btn.textContent='Kaydediliyor...';
+
+  // OPTİMİSTİK: Önce hafızada güncelle
+  const eskiUretim = kalem.uretimMiktar || 0;
+  const eskiAlis = kalem.alisFiyat;
+  const eskiKur = kalem.alisKur;
+  kalem.uretimMiktar = eskiUretim + miktar;
+  kalem.alisFiyat = alis;
+  kalem.alisKur = kur;
+  kalem.alisDoviz = alisDoviz;
+  Cache.kaydet(Cache.KEYS.SIPARISLER, _tumSiparisler);
+  document.getElementById('modalUretim').classList.add('hidden');
+  toast('Üretim kaydedildi', 'success');
+  _listeRender();
+
   try {
     await API.uretimKaydet(kayit);
-    document.getElementById('modalUretim').classList.add('hidden');
-    toast('Üretim kaydedildi','success');
-    await _siparisleriYukle();
-  } catch(e){ toast('Hata: '+e.message,'error'); }
+  } catch(e) {
+    // Geri al
+    kalem.uretimMiktar = eskiUretim;
+    kalem.alisFiyat = eskiAlis;
+    kalem.alisKur = eskiKur;
+    Cache.kaydet(Cache.KEYS.SIPARISLER, _tumSiparisler);
+    _listeRender();
+    toast('Üretim kaydedilemedi: ' + e.message, 'error');
+  }
   finally { btn.disabled=false; btn.textContent='Kaydet'; }
 }
 
@@ -340,6 +362,7 @@ function _sevkModalAc(kalemId, siparisKodu) {
   document.getElementById('sevkMiktar').value='';
   document.getElementById('sevkSatisFiyat').value=kalem.satisFiyat||kalem.birimFiyat||'';
   document.getElementById('sevkSatisKur').value=kalem.satisKur||'';
+  document.getElementById('sevkSatisDoviz').value = kalem.satisDoviz || siparis.doviz || 'EUR';
   document.getElementById('sevkHesap').textContent='';
   document.getElementById('modalSevk').classList.remove('hidden');
   document.getElementById('sevkMiktar').focus();
@@ -350,9 +373,10 @@ function _sevkHesapla() {
   const s = parseFloat(document.getElementById('sevkSatisFiyat').value)||0;
   const k = parseFloat(document.getElementById('sevkSatisKur').value)||0;
   const el = document.getElementById('sevkHesap');
+  const dovizLabel2 = document.getElementById('sevkSatisDoviz')?.value || _sevkKayit?.siparis?.doviz || '';
   if (m>0&&s>0&&k>0) {
     const td=m*s, ttl=td*k;
-    el.textContent=`${_fmt(m)} m × ${s} ${_sevkKayit?.siparis?.doviz||''} = ${_fmt(td)} ${_sevkKayit?.siparis?.doviz||''}   →   ${_fmtTl(ttl)}`;
+    el.textContent=`${_fmt(m)} m × ${s} ${dovizLabel2} = ${_fmt(td)} ${dovizLabel2}   →   ${_fmtTl(ttl)}`;
   } else el.textContent='';
 }
 
@@ -365,34 +389,52 @@ async function _sevkKaydet() {
   if (miktar<=0){toast('Sevk miktarı girilmeli','error');return;}
   if (satis<=0){toast('Satış fiyatı girilmeli','error');return;}
   if (kur<=0){toast('Satış kuru girilmeli','error');return;}
-  const kayit = { id:'SK_'+Date.now(), siparisKodu:siparis.kod, kalemId:kalem.id, miktar, satisFiyat:satis, satisKur:kur, tarih:new Date().toISOString() };
+  const satisDoviz = document.getElementById('sevkSatisDoviz')?.value || siparis.doviz || 'EUR';
+  const kayit = { id:'SK_'+Date.now(), siparisKodu:siparis.kod, kalemId:kalem.id, miktar, satisFiyat:satis, satisKur:kur, satisDoviz, tarih:new Date().toISOString() };
   const btn = document.getElementById('btnSevkKaydet');
   btn.disabled=true; btn.textContent='Kaydediliyor...';
+
+  // OPTİMİSTİK: Önce hafızada güncelle
+  const eskiSevk = kalem.sevkMiktar || 0;
+  const eskiSatis = kalem.satisFiyat;
+  const eskiSatisKur = kalem.satisKur;
+  kalem.sevkMiktar = eskiSevk + miktar;
+  kalem.satisFiyat = satis;
+  kalem.satisKur = kur;
+  kalem.satisDoviz = satisDoviz;
+  Cache.kaydet(Cache.KEYS.SIPARISLER, _tumSiparisler);
+  document.getElementById('modalSevk').classList.add('hidden');
+  toast('Sevk kaydedildi', 'success');
+  _listeRender();
+
   try {
     await API.sevkKaydet(kayit);
-    document.getElementById('modalSevk').classList.add('hidden');
-    toast('Sevk kaydedildi','success');
-    await _siparisleriYukle();
-  } catch(e){ toast('Hata: '+e.message,'error'); }
+  } catch(e) {
+    // Geri al
+    kalem.sevkMiktar = eskiSevk;
+    kalem.satisFiyat = eskiSatis;
+    kalem.satisKur = eskiSatisKur;
+    Cache.kaydet(Cache.KEYS.SIPARISLER, _tumSiparisler);
+    _listeRender();
+    toast('Sevk kaydedilemedi: ' + e.message, 'error');
+  }
   finally { btn.disabled=false; btn.textContent='Kaydet'; }
 }
 
 async function _siparisKapat(kod) {
   if (!confirm(kod + ' siparişini kapatmak istediğinize emin misiniz?')) return;
-  try {
-    await API.siparisKapat(kod);
-    toast(kod+' kapatıldı','info');
-    await _siparisleriYukle();
-  } catch(e){ toast('Hata: '+e.message,'error'); }
+  const s = _tumSiparisler.find(x => x.kod === kod);
+  if (s) { s.durum = 'kapali'; Cache.kaydet(Cache.KEYS.SIPARISLER, _tumSiparisler); _listeRender(); toast(kod+' kapatıldı','info'); }
+  try { await API.siparisKapat(kod); }
+  catch(e) { if(s){s.durum='bekliyor';Cache.kaydet(Cache.KEYS.SIPARISLER,_tumSiparisler);_listeRender();} toast('Hata: '+e.message,'error'); }
 }
 
 async function _siparisAc(kod) {
   if (!confirm(kod + ' siparişini yeniden açmak istediğinize emin misiniz?')) return;
-  try {
-    await API.siparisAc(kod);
-    toast(kod+' yeniden açıldı','success');
-    await _siparisleriYukle();
-  } catch(e){ toast('Hata: '+e.message,'error'); }
+  const s = _tumSiparisler.find(x => x.kod === kod);
+  if (s) { s.durum = 'bekliyor'; Cache.kaydet(Cache.KEYS.SIPARISLER, _tumSiparisler); _listeRender(); toast(kod+' yeniden açıldı','success'); }
+  try { await API.siparisAc(kod); }
+  catch(e) { if(s){s.durum='kapali';Cache.kaydet(Cache.KEYS.SIPARISLER,_tumSiparisler);_listeRender();} toast('Hata: '+e.message,'error'); }
 }
 
 // ============================================================
@@ -450,6 +492,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('btnUretimIptal')?.addEventListener('click', () => document.getElementById('modalUretim').classList.add('hidden'));
   document.getElementById('btnUretimKaydet')?.addEventListener('click', _uretimKaydet);
   ['uretimMiktar','uretimAlisFiyat','uretimAlisKur'].forEach(id => document.getElementById(id)?.addEventListener('input', _uretimHesapla));
+  document.getElementById('uretimAlisDoviz')?.addEventListener('change', _uretimHesapla);
   document.getElementById('modalUretim')?.addEventListener('click', e => { if(e.target===e.currentTarget) e.currentTarget.classList.add('hidden'); });
 
   // Sevk modal
@@ -457,6 +500,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('btnSevkIptal')?.addEventListener('click', () => document.getElementById('modalSevk').classList.add('hidden'));
   document.getElementById('btnSevkKaydet')?.addEventListener('click', _sevkKaydet);
   ['sevkMiktar','sevkSatisFiyat','sevkSatisKur'].forEach(id => document.getElementById(id)?.addEventListener('input', _sevkHesapla));
+  document.getElementById('sevkSatisDoviz')?.addEventListener('change', _sevkHesapla);
   document.getElementById('modalSevk')?.addEventListener('click', e => { if(e.target===e.currentTarget) e.currentTarget.classList.add('hidden'); });
 
   // İlk yükleme
@@ -464,7 +508,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   _urunSatiriEkle();
   await API.testBaglanti();
   await _siparisleriYukle();
-  await _kpYukle();
+  // Kâr payı açılınca yüklensin, başlangıçta yükleme
+  // await _kpYukle();
 
   // Kar payı butonları
   document.getElementById('btnGiderEkle')?.addEventListener('click', () => {
