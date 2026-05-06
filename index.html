@@ -1,92 +1,15 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SAKA TAKİP</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SAKA TAKİP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-
-    <div class="giris-baslik">SAKA TAKİP</div>
-    <div class="giris-alt">Ön Muhasebe Sistemi</div>
-    <input type="password" class="giris-input" id="girisInput" placeholder="••••••••" maxlength="20" />
-    <button class="giris-btn" id="girisBtn">Giriş Yap</button>
-    <div class="giris-hata" id="girisHata"></div>
-  </div>
-</div>
-
-
-  <div class="giris-kutu">
-    <div class="giris-logo">◈</div>
-    <div class="giris-baslik">SAKA TAKİP</div>
-    <div class="giris-alt">// sistem erişimi //</div>
-    <input type="password" class="giris-input" id="girisInput" placeholder="········" maxlength="20" />
-    <button class="giris-btn" id="girisBtn">[ GİRİŞ ]</button>
-    <div class="giris-hata" id="girisHata"></div>
-  </div>
-</div>
-
-
-  <div class="giris-wrapper">
-    <div class="giris-kutu">
-      <div class="kose-tl"></div><div class="kose-tr"></div>
-      <div class="kose-bl"></div><div class="kose-br"></div>
-      <div class="giris-logo-satir">
-        <span class="giris-logo-ikon">◈</span>
-        <span class="giris-logo-yazi">ÖZDEMİR SAKA</span>
-      </div>
-      <div class="giris-logo-alt">// ÖN MUHASEBE SİSTEMİ //</div>
-      <div class="giris-ayrac"></div>
-      <span class="giris-input-label">ERİŞİM KODU</span>
-      <input type="password" class="giris-input" id="girisInput" placeholder="· · · · · · · ·" maxlength="20" />
-      <button class="giris-btn" id="girisBtn">SİSTEME GİRİŞ</button>
-      <div class="giris-hata" id="girisHata"></div>
-      <div class="giris-versiyon">SKTV4 · 2026</div>
-    </div>
-  </div>
-</div>
-
-
-  <div class="g-wrap">
-    <div class="g-box">
-      <div class="g-k tl"></div><div class="g-k tr"></div>
-      <div class="g-k bl"></div><div class="g-k br"></div>
-      <div class="g-logo">
-        <span class="g-ikon">◈</span>
-        <span class="g-isim">ÖZDEMİR SAKA</span>
-      </div>
-      <div class="g-alt">// ÖN MUHASEBE SİSTEMİ //</div>
-      <div class="g-ayrac"></div>
-      <span class="g-label">ERİŞİM KODU</span>
-      <input type="password" class="g-input" id="girisInput" placeholder="· · · · · · · ·" maxlength="20" />
-      <button class="g-btn" id="girisBtn">SİSTEME GİRİŞ</button>
-      <div class="g-hata" id="girisHata"></div>
-      <div class="g-ver">SKTV4 · 2026</div>
-    </div>
-  </div>
-</div>
-
-<div id="gE">
-  <canvas id="mC"></canvas>
-  <div id="hS">HELLO SAKA</div>
-  <div id="gB">
-    <div class="gK a"></div><div class="gK b"></div><div class="gK c"></div><div class="gK d"></div>
-    <div id="gL"><span id="gI">◈</span><span id="gN">ÖZDEMİR SAKA</span></div>
-    <div id="gA">// ÖN MUHASEBE SİSTEMİ //</div>
-    <div id="gY"></div>
-    <span id="gLb">ERİŞİM KODU</span>
-    <input type="password" id="gIn" placeholder="· · · · · · · ·" maxlength="20"/>
-    <button id="gBt">SİSTEME GİRİŞ</button>
-    <div id="gH"></div>
-    <div id="gV">SKTV4 · 2026</div>
-  </div>
-</div>
-
-<div id="app" style="display:none;">
-  <!-- SIDEBAR -->
+<div id="app">
   <nav id="sidebar">
     <div class="sidebar-logo">
       <span class="logo-icon">◈</span>
@@ -113,21 +36,13 @@
       </div>
     </div>
   </nav>
-
-  <!-- ANA İÇERİK -->
   <main id="main-content">
 
-    <!-- SİPARİŞLER -->
     <div id="page-siparisler" class="page active">
       <div class="page-header">
-        <div>
-          <h1>Siparişler</h1>
-          <p class="page-sub">Sipariş oluştur, üretim ve sevk bilgisi gir</p>
-        </div>
+        <div><h1>Siparişler</h1><p class="page-sub">Sipariş oluştur, üretim ve sevk bilgisi gir</p></div>
         <button class="btn btn-primary" id="btnYeniSiparis">+ Yeni Sipariş</button>
       </div>
-
-      <!-- YENİ SİPARİŞ FORMU -->
       <div id="siparisFormu" class="panel hidden">
         <div class="panel-header">
           <h2>Yeni Sipariş</h2>
@@ -136,26 +51,10 @@
         </div>
         <div class="form-section">
           <div class="form-grid-4">
-            <div class="form-group">
-              <label>Tarih <span class="req">*</span></label>
-              <input type="date" id="sipTarih" />
-            </div>
-            <div class="form-group">
-              <label>Müşteri Adı <span class="req">*</span></label>
-              <input type="text" id="sipMusteri" placeholder="Müşteri adı..." />
-            </div>
-            <div class="form-group">
-              <label>Marka / Fabrika <span class="req">*</span></label>
-              <input type="text" id="sipMarka" placeholder="örn: DOĞUŞ" />
-            </div>
-            <div class="form-group">
-              <label>Döviz <span class="req">*</span></label>
-              <select id="sipDoviz">
-                <option value="EUR">EUR</option>
-                <option value="USD">USD</option>
-                <option value="TL">TL</option>
-              </select>
-            </div>
+            <div class="form-group"><label>Tarih <span class="req">*</span></label><input type="date" id="sipTarih" /></div>
+            <div class="form-group"><label>Müşteri Adı <span class="req">*</span></label><input type="text" id="sipMusteri" placeholder="Müşteri adı..." /></div>
+            <div class="form-group"><label>Marka / Fabrika <span class="req">*</span></label><input type="text" id="sipMarka" placeholder="örn: DOĞUŞ" /></div>
+            <div class="form-group"><label>Döviz <span class="req">*</span></label><select id="sipDoviz"><option value="EUR">EUR</option><option value="USD">USD</option><option value="TL">TL</option></select></div>
           </div>
         </div>
         <div class="form-section">
@@ -164,11 +63,7 @@
             <button class="btn btn-sm btn-outline" id="btnUrunEkle">+ Ürün Ekle</button>
           </div>
           <div class="urun-cols-header">
-            <span>Ürün Adı</span>
-            <span>Renk / Kod</span>
-            <span>Sipariş (M)</span>
-            <span>Birim Fiyat</span>
-            <span></span>
+            <span>Ürün Adı</span><span>Renk / Kod</span><span>Sipariş (M)</span><span>Birim Fiyat</span><span></span>
           </div>
           <div id="urunListesi"></div>
           <div class="form-totals">
@@ -184,8 +79,6 @@
           <button class="btn btn-primary" id="btnSiparisKaydet">Siparişi Kaydet</button>
         </div>
       </div>
-
-      <!-- FİLTRE -->
       <div class="list-controls">
         <input type="text" id="sipArama" placeholder="Müşteri, sipariş kodu veya ürün ara..." class="search-input" />
         <select id="sipDurumFiltre" class="filter-select" style="height:36px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-family:var(--font-sans);font-size:13px;outline:none;">
@@ -195,8 +88,6 @@
           <option value="tamamlandi">Tamamlananlar</option>
         </select>
       </div>
-
-      <!-- SİPARİŞ LİSTESİ -->
       <div id="siparisListesi">
         <div class="empty-state">
           <div class="empty-icon">◈</div>
@@ -206,67 +97,33 @@
       </div>
     </div>
 
-    <!-- DİĞER SAYFALAR -->
     <div id="page-tamamlananlar" class="page">
       <div class="page-header"><div><h1>Tamamlananlar</h1><p class="page-sub">Kapatılmış siparişler</p></div></div>
-
-      <!-- TOP BAR ÖZET -->
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;">
-        <div class="kp-kart">
-          <div class="kp-kart-label">Toplam Sipariş Sayısı</div>
-          <div class="kp-kart-value" id="tamSiparisSayisi">0</div>
-        </div>
-        <div class="kp-kart">
-          <div class="kp-kart-label">Toplam Sipariş Miktarı</div>
-          <div class="kp-kart-value primary" id="tamSiparisMiktar">0 m</div>
-        </div>
-        <div class="kp-kart">
-          <div class="kp-kart-label">Toplam Sevk Miktarı</div>
-          <div class="kp-kart-value success" id="tamSevkMiktar">0 m</div>
-        </div>
+        <div class="kp-kart"><div class="kp-kart-label">Toplam Sipariş Sayısı</div><div class="kp-kart-value" id="tamSiparisSayisi">0</div></div>
+        <div class="kp-kart"><div class="kp-kart-label">Toplam Sipariş Miktarı</div><div class="kp-kart-value primary" id="tamSiparisMiktar">0 m</div></div>
+        <div class="kp-kart"><div class="kp-kart-label">Toplam Sevk Miktarı</div><div class="kp-kart-value success" id="tamSevkMiktar">0 m</div></div>
       </div>
-
-      <div class="list-controls">
-        <input type="text" id="tamArama" placeholder="Müşteri, sipariş kodu veya ürün ara..." class="search-input" />
-      </div>
-      <div id="tamamlananListesi">
-        <div class="empty-state"><div class="empty-icon">✓</div><p>Henüz tamamlanan sipariş yok</p><span>Kapatılan siparişler burada görünür</span></div>
-      </div>
+      <div class="list-controls"><input type="text" id="tamArama" placeholder="Müşteri, sipariş kodu veya ürün ara..." class="search-input" /></div>
+      <div id="tamamlananListesi"><div class="empty-state"><div class="empty-icon">✓</div><p>Henüz tamamlanan sipariş yok</p></div></div>
     </div>
-    <!-- ÜRETİMLER SAYFASI -->
+
     <div id="page-uretimler" class="page">
-      <div class="page-header">
-        <div><h1>Üretimler</h1><p class="page-sub">Siparişe karşılık yapılan üretimler</p></div>
-      </div>
-      <div id="uretimlerListesi">
-        <div class="empty-state"><div class="empty-icon">⚙</div><p>Yükleniyor...</p></div>
-      </div>
+      <div class="page-header"><div><h1>Üretimler</h1><p class="page-sub">Siparişe karşılık yapılan üretimler</p></div></div>
+      <div id="uretimlerListesi"><div class="empty-state"><div class="empty-icon">⚙</div><p>Yükleniyor...</p></div></div>
     </div>
 
-    <!-- SATIŞ / SEVK SAYFASI -->
     <div id="page-sevk" class="page">
-      <div class="page-header">
-        <div><h1>Satış / Sevk</h1><p class="page-sub">Üretime karşılık yapılan sevkler</p></div>
-      </div>
-      <div id="sevkListesi">
-        <div class="empty-state"><div class="empty-icon">⇗</div><p>Yükleniyor...</p></div>
-      </div>
+      <div class="page-header"><div><h1>Satış / Sevk</h1><p class="page-sub">Üretime karşılık yapılan sevkler</p></div></div>
+      <div id="sevkListesi"><div class="empty-state"><div class="empty-icon">⇗</div><p>Yükleniyor...</p></div></div>
     </div>
-    <div id="page-cari" class="page">
-      <div class="page-header">
-        <div><h1>Müşteri Carisi</h1><p class="page-sub">Müşteri bazında borç ve tahsilat takibi</p></div>
-      </div>
-      <div id="cariListesi">
-        <div class="empty-state"><div class="empty-icon">◎</div><p>Yükleniyor...</p></div>
-      </div>
 
-      <!-- TAHSİLAT MODAL -->
+    <div id="page-cari" class="page">
+      <div class="page-header"><div><h1>Müşteri Carisi</h1><p class="page-sub">Müşteri bazında borç ve tahsilat takibi</p></div></div>
+      <div id="cariListesi"><div class="empty-state"><div class="empty-icon">◎</div><p>Yükleniyor...</p></div></div>
       <div id="modalTahsilat" class="modal-overlay hidden">
         <div class="modal">
-          <div class="modal-header">
-            <h3>Tahsilat Gir</h3>
-            <button class="btn-close" id="btnTahsilatModalKapat">✕</button>
-          </div>
+          <div class="modal-header"><h3>Tahsilat Gir</h3><button class="btn-close" id="btnTahsilatModalKapat">✕</button></div>
           <div class="modal-body">
             <div class="modal-info" id="tahsilatModalInfo"></div>
             <div class="form-grid-3">
@@ -282,6 +139,7 @@
         </div>
       </div>
     </div>
+
     <div id="page-karpay" class="page">
       <div class="page-header">
         <div><h1>Kâr Payı</h1><p class="page-sub">Gelir, gider ve kar payı takibi</p></div>
@@ -291,98 +149,42 @@
           <button class="btn btn-outline btn-sm" id="btnOdemeEkle">+ Ödeme Aldım</button>
         </div>
       </div>
-
-      <!-- ÖZET KARTLAR - SATIR 1 -->
       <div class="kp-kartlar">
-        <div class="kp-kart">
-          <div class="kp-kart-label">Toplam Satış / Teslimat</div>
-          <div class="kp-kart-value success" id="kpToplam">₺0</div>
-        </div>
-        <div class="kp-kart">
-          <div class="kp-kart-label">Toplam Maliyet</div>
-          <div class="kp-kart-value danger" id="kpMaliyet">₺0</div>
-        </div>
-        <div class="kp-kart">
-          <div class="kp-kart-label">Brüt Kâr</div>
-          <div class="kp-kart-value" id="kpBrutKar">₺0</div>
-        </div>
-        <div class="kp-kart">
-          <div class="kp-kart-label">Benim Payım (%50)</div>
-          <div class="kp-kart-value primary" id="kpBenimPayim">₺0</div>
-        </div>
-        <div class="kp-kart">
-          <div class="kp-kart-label">Gider Payım (%50)</div>
-          <div class="kp-kart-value danger" id="kpGiderPayim">₺0</div>
-        </div>
-        <div class="kp-kart highlight">
-          <div class="kp-kart-label">Net Alacağım</div>
-          <div class="kp-kart-value primary" id="kpNetAlacak">₺0</div>
-        </div>
+        <div class="kp-kart"><div class="kp-kart-label">Toplam Satış / Teslimat</div><div class="kp-kart-value success" id="kpToplam">₺0</div></div>
+        <div class="kp-kart"><div class="kp-kart-label">Toplam Maliyet</div><div class="kp-kart-value danger" id="kpMaliyet">₺0</div></div>
+        <div class="kp-kart"><div class="kp-kart-label">Brüt Kâr</div><div class="kp-kart-value" id="kpBrutKar">₺0</div></div>
+        <div class="kp-kart"><div class="kp-kart-label">Benim Payım (%50)</div><div class="kp-kart-value primary" id="kpBenimPayim">₺0</div></div>
+        <div class="kp-kart"><div class="kp-kart-label">Gider Payım (%50)</div><div class="kp-kart-value danger" id="kpGiderPayim">₺0</div></div>
+        <div class="kp-kart highlight"><div class="kp-kart-label">Net Alacağım</div><div class="kp-kart-value primary" id="kpNetAlacak">₺0</div></div>
       </div>
-
-      <!-- ÖZET KARTLAR - SATIR 2 -->
       <div class="kp-kartlar" style="margin-top:10px;grid-template-columns:1fr 1fr 4fr;">
-        <div class="kp-kart">
-          <div class="kp-kart-label">Alınan Toplam</div>
-          <div class="kp-kart-value success" id="kpAlinan">₺0</div>
-        </div>
-        <div class="kp-kart highlight2">
-          <div class="kp-kart-label">Kalan Alacağım</div>
-          <div class="kp-kart-value primary" id="kpKalan">₺0</div>
-        </div>
+        <div class="kp-kart"><div class="kp-kart-label">Alınan Toplam</div><div class="kp-kart-value success" id="kpAlinan">₺0</div></div>
+        <div class="kp-kart highlight2"><div class="kp-kart-label">Kalan Alacağım</div><div class="kp-kart-value primary" id="kpKalan">₺0</div></div>
         <div></div>
       </div>
-
-      <!-- SİPARİŞ BAZINDA KAR TABLOSU -->
       <div style="margin-top:24px;">
         <h3 class="kp-baslik">Sipariş Bazında Kâr</h3>
         <div style="background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:auto;">
           <table class="kalem-table" id="kpKarTablosu">
-            <thead><tr>
-              <th>Tarih</th><th>Müşteri</th><th>Sip. Kodu</th>
-              <th style="text-align:right">Sip.(M)</th>
-              <th style="text-align:right">Üretim(M)</th>
-              <th style="text-align:right">Fark(M)</th>
-              <th style="text-align:right">Satış TL</th>
-              <th style="text-align:right">Maliyet TL</th>
-              <th style="text-align:right">Brüt Kâr</th>
-              <th style="text-align:right">Benim Payım</th>
-              <th style="text-align:right">Şirket Payı</th>
-            </tr></thead>
-            <tbody id="kpKarBody">
-              <tr><td colspan="11" class="loading-row"><span class="spinner"></span> Yükleniyor...</td></tr>
-            </tbody>
+            <thead><tr><th>Tarih</th><th>Müşteri</th><th>Sip. Kodu</th><th style="text-align:right">Sip.(M)</th><th style="text-align:right">Üretim(M)</th><th style="text-align:right">Fark(M)</th><th style="text-align:right">Satış TL</th><th style="text-align:right">Maliyet TL</th><th style="text-align:right">Brüt Kâr</th><th style="text-align:right">Benim Payım</th><th style="text-align:right">Şirket Payı</th></tr></thead>
+            <tbody id="kpKarBody"><tr><td colspan="11" class="loading-row"><span class="spinner"></span> Yükleniyor...</td></tr></tbody>
           </table>
         </div>
       </div>
-
-      <!-- GİDERLER AKORDİON -->
       <div style="margin-top:24px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
           <h3 class="kp-baslik" style="margin-bottom:0;">Giderler</h3>
           <span id="kpGiderToplam" style="font-family:var(--font-mono);font-size:13px;color:var(--color-danger);font-weight:600;"></span>
         </div>
-        <div id="kpGiderListesi">
-          <div class="empty-state" style="padding:30px 0;background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius-lg);">
-            <span style="font-size:12px;">Henüz gider yok</span>
-          </div>
-        </div>
+        <div id="kpGiderListesi"><div class="empty-state" style="padding:30px 0;background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius-lg);"><span style="font-size:12px;">Henüz gider yok</span></div></div>
       </div>
-
-      <!-- ÖDEMELER AKORDİON -->
       <div style="margin-top:24px;margin-bottom:40px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
           <h3 class="kp-baslik" style="margin-bottom:0;">Aldığım Ödemeler</h3>
           <span id="kpOdemeToplam" style="font-family:var(--font-mono);font-size:13px;color:var(--color-success);font-weight:600;"></span>
         </div>
-        <div id="kpOdemeListesi">
-          <div class="empty-state" style="padding:30px 0;background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius-lg);">
-            <span style="font-size:12px;">Henüz ödeme kaydı yok</span>
-          </div>
-        </div>
+        <div id="kpOdemeListesi"><div class="empty-state" style="padding:30px 0;background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius-lg);"><span style="font-size:12px;">Henüz ödeme kaydı yok</span></div></div>
       </div>
-
-      <!-- GİDER MODAL -->
       <div id="modalGider" class="modal-overlay hidden">
         <div class="modal">
           <div class="modal-header"><h3>Gider Ekle</h3><button class="btn-close" id="btnGiderModalKapat">✕</button></div>
@@ -394,14 +196,9 @@
             </div>
             <div class="form-group" style="margin-top:12px;"><label>Açıklama <span class="req">*</span></label><input type="text" id="giderAciklama" placeholder="Gider açıklaması..." /></div>
           </div>
-          <div class="modal-footer">
-            <button class="btn btn-ghost" id="btnGiderIptal">İptal</button>
-            <button class="btn btn-primary" id="btnGiderKaydet">Kaydet</button>
-          </div>
+          <div class="modal-footer"><button class="btn btn-ghost" id="btnGiderIptal">İptal</button><button class="btn btn-primary" id="btnGiderKaydet">Kaydet</button></div>
         </div>
       </div>
-
-      <!-- ÖDEME MODAL -->
       <div id="modalOdeme" class="modal-overlay hidden">
         <div class="modal">
           <div class="modal-header"><h3>Ödeme Aldım</h3><button class="btn-close" id="btnOdemeModalKapat">✕</button></div>
@@ -412,172 +209,54 @@
               <div class="form-group"><label>Not</label><input type="text" id="odemeNot" placeholder="Opsiyonel..." /></div>
             </div>
           </div>
-          <div class="modal-footer">
-            <button class="btn btn-ghost" id="btnOdemeIptal">İptal</button>
-            <button class="btn btn-primary" id="btnOdemeKaydet">Kaydet</button>
-          </div>
+          <div class="modal-footer"><button class="btn btn-ghost" id="btnOdemeIptal">İptal</button><button class="btn btn-primary" id="btnOdemeKaydet">Kaydet</button></div>
         </div>
       </div>
-
-      <!-- RAPOR PRINT ALANI (gizli) -->
       <div id="kpRaporAlani" style="display:none;"></div>
     </div>
+
   </main>
 </div>
 
-<!-- MODAL: ÜRETİM GİR -->
 <div id="modalUretim" class="modal-overlay hidden">
   <div class="modal">
-    <div class="modal-header">
-      <h3>Üretim Bilgisi Gir</h3>
-      <button class="btn-close" id="btnUretimModalKapat">✕</button>
-    </div>
+    <div class="modal-header"><h3>Üretim Bilgisi Gir</h3><button class="btn-close" id="btnUretimModalKapat">✕</button></div>
     <div class="modal-body">
       <div class="modal-info" id="uretimModalInfo"></div>
       <div class="form-grid-4">
-        <div class="form-group">
-          <label>Üretim Miktarı (M) <span class="req">*</span></label>
-          <input type="number" id="uretimMiktar" placeholder="0" min="0" step="0.01" />
-        </div>
-        <div class="form-group">
-          <label>Alış Fiyatı <span class="req">*</span></label>
-          <input type="number" id="uretimAlisFiyat" placeholder="0.00" min="0" step="0.01" />
-        </div>
-        <div class="form-group">
-          <label>Alış Kuru (TL) <span class="req">*</span></label>
-          <input type="number" id="uretimAlisKur" placeholder="0.00" min="0" step="0.01" />
-        </div>
-        <div class="form-group">
-          <label>Döviz</label>
-          <select id="uretimAlisDoviz">
-            <option value="EUR">EUR</option>
-            <option value="USD">USD</option>
-            <option value="TL">TL</option>
-          </select>
-        </div>
+        <div class="form-group"><label>Üretim Miktarı (M) <span class="req">*</span></label><input type="number" id="uretimMiktar" placeholder="0" min="0" step="0.01" /></div>
+        <div class="form-group"><label>Alış Fiyatı <span class="req">*</span></label><input type="number" id="uretimAlisFiyat" placeholder="0.00" min="0" step="0.01" /></div>
+        <div class="form-group"><label>Alış Kuru (TL) <span class="req">*</span></label><input type="number" id="uretimAlisKur" placeholder="0.00" min="0" step="0.01" /></div>
+        <div class="form-group"><label>Döviz</label><select id="uretimAlisDoviz"><option value="EUR">EUR</option><option value="USD">USD</option><option value="TL">TL</option></select></div>
       </div>
       <div class="hesap-box" id="uretimHesap"></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" id="btnUretimIptal">İptal</button>
-      <button class="btn btn-primary" id="btnUretimKaydet">Kaydet</button>
-    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" id="btnUretimIptal">İptal</button><button class="btn btn-primary" id="btnUretimKaydet">Kaydet</button></div>
   </div>
 </div>
 
-<!-- MODAL: SEVK GİR -->
 <div id="modalSevk" class="modal-overlay hidden">
   <div class="modal">
-    <div class="modal-header">
-      <h3>Sevk Bilgisi Gir</h3>
-      <button class="btn-close" id="btnSevkModalKapat">✕</button>
-    </div>
+    <div class="modal-header"><h3>Sevk Bilgisi Gir</h3><button class="btn-close" id="btnSevkModalKapat">✕</button></div>
     <div class="modal-body">
       <div class="modal-info" id="sevkModalInfo"></div>
       <div class="form-grid-4">
-        <div class="form-group">
-          <label>Sevk Miktarı (M) <span class="req">*</span></label>
-          <input type="number" id="sevkMiktar" placeholder="0" min="0" step="0.01" />
-        </div>
-        <div class="form-group">
-          <label>Satış Fiyatı <span class="req">*</span></label>
-          <input type="number" id="sevkSatisFiyat" placeholder="0.00" min="0" step="0.01" />
-        </div>
-        <div class="form-group">
-          <label>Satış Kuru (TL) <span class="req">*</span></label>
-          <input type="number" id="sevkSatisKur" placeholder="0.00" min="0" step="0.01" />
-        </div>
-        <div class="form-group">
-          <label>Döviz</label>
-          <select id="sevkSatisDoviz">
-            <option value="EUR">EUR</option>
-            <option value="USD">USD</option>
-            <option value="TL">TL</option>
-          </select>
-        </div>
+        <div class="form-group"><label>Sevk Miktarı (M) <span class="req">*</span></label><input type="number" id="sevkMiktar" placeholder="0" min="0" step="0.01" /></div>
+        <div class="form-group"><label>Satış Fiyatı <span class="req">*</span></label><input type="number" id="sevkSatisFiyat" placeholder="0.00" min="0" step="0.01" /></div>
+        <div class="form-group"><label>Satış Kuru (TL) <span class="req">*</span></label><input type="number" id="sevkSatisKur" placeholder="0.00" min="0" step="0.01" /></div>
+        <div class="form-group"><label>Döviz</label><select id="sevkSatisDoviz"><option value="EUR">EUR</option><option value="USD">USD</option><option value="TL">TL</option></select></div>
       </div>
       <div class="hesap-box" id="sevkHesap"></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" id="btnSevkIptal">İptal</button>
-      <button class="btn btn-primary" id="btnSevkKaydet">Kaydet</button>
-    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" id="btnSevkIptal">İptal</button><button class="btn btn-primary" id="btnSevkKaydet">Kaydet</button></div>
   </div>
 </div>
 
-<!-- TOAST -->
 <div id="toast" class="toast hidden"></div>
-
 <script src="js/state.js"></script>
 <script src="js/api.js"></script>
-<script src="js/state.js"></script>
 <script src="js/siparis.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/main.js"></script>
-
-
-
-
-
-
-
-
-
-
-
-
-<script>
-(function(){
-  var S='6161csr',K='sktv4_g';
-  var c=document.getElementById('mC'),ctx=c.getContext('2d'),aid,cols,drops;
-  var ch='アイウエオカキクケコ0123456789ABCDEF<>[]{}|#@'.split('');
-  function init(){c.width=innerWidth;c.height=innerHeight;cols=Math.floor(c.width/14);drops=Array(cols).fill(1);}
-  function draw(){
-    ctx.fillStyle='rgba(0,0,0,0.05)';ctx.fillRect(0,0,c.width,c.height);
-    ctx.font='14px Courier New';
-    for(var i=0;i<drops.length;i++){
-      ctx.fillStyle=Math.random()>.9?'#80d8ff':'#005577';
-      ctx.fillText(ch[Math.floor(Math.random()*ch.length)],i*14,drops[i]*14);
-      if(drops[i]*14>c.height&&Math.random()>.975)drops[i]=0;
-      drops[i]++;
-    }
-  }
-  function start(){init();aid=setInterval(draw,40);window.addEventListener('resize',init);}
-  function stop(){clearInterval(aid);}
-  function show(){
-    document.getElementById('gE').classList.add('hidden');
-    document.getElementById('app').style.display='';
-    if(typeof _siparisleriYukle==='function'){setTimeout(function(){_siparisleriYukle(true);},200);}
-  }
-  function kontrol(){
-    if(sessionStorage.getItem(K)==='1'){show();return true;}
-    return false;
-  }
-  function giris(){
-    var v=document.getElementById('gIn').value;
-    if(v===S){
-      sessionStorage.setItem(K,'1');
-      document.getElementById('gB').style.cssText='transition:opacity .5s;opacity:0';
-      document.getElementById('hS').classList.add('on');
-      setTimeout(function(){
-        document.getElementById('gE').classList.add('fo');
-        setTimeout(function(){show();stop();},800);
-      },1800);
-    } else {
-      var inp=document.getElementById('gIn'),h=document.getElementById('gH');
-      h.textContent='// ERİŞİM REDDEDİLDİ //';
-      inp.style.borderColor='#ff4466';inp.style.boxShadow='0 0 12px rgba(255,68,102,.4)';
-      inp.value='';
-      setTimeout(function(){inp.style.borderColor='';inp.style.boxShadow='';h.textContent='';inp.focus();},1500);
-    }
-  }
-  document.addEventListener('DOMContentLoaded',function(){
-    if(!kontrol()){start();setTimeout(function(){document.getElementById('gIn').focus();},100);}
-    document.getElementById('gBt').addEventListener('click',giris);
-    document.getElementById('gIn').addEventListener('keydown',function(e){if(e.key==='Enter')giris();});
-  });
-})();
-</script>
-
 </body>
 </html>
