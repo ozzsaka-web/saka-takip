@@ -9,6 +9,30 @@
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
+
+    <div class="giris-baslik">SAKA TAKİP</div>
+    <div class="giris-alt">Ön Muhasebe Sistemi</div>
+    <input type="password" class="giris-input" id="girisInput" placeholder="••••••••" maxlength="20" />
+    <button class="giris-btn" id="girisBtn">Giriş Yap</button>
+    <div class="giris-hata" id="girisHata"></div>
+  </div>
+</div>
+
+
+<!-- GİRİŞ EKRANI -->
+<div id="girisEkrani">
+  <canvas id="matrixCanvas"></canvas>
+  <div id="helloSaka">HELLO SAKA</div>
+  <div class="giris-kutu">
+    <div class="giris-logo">◈</div>
+    <div class="giris-baslik">SAKA TAKİP</div>
+    <div class="giris-alt">// sistem erişimi //</div>
+    <input type="password" class="giris-input" id="girisInput" placeholder="········" maxlength="20" />
+    <button class="giris-btn" id="girisBtn">[ GİRİŞ ]</button>
+    <div class="giris-hata" id="girisHata"></div>
+  </div>
+</div>
+
 <div id="app">
   <!-- SIDEBAR -->
   <nav id="sidebar">
@@ -438,5 +462,115 @@
 <script src="js/siparis.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/main.js"></script>
+
+
+
+
+<script>
+(function() {
+  const SIFRE = '6161csr';
+  const SESSION_KEY = 'sktv3_giris';
+
+  // MATRIX CANVAS
+  const canvas = document.getElementById('matrixCanvas');
+  const ctx = canvas.getContext('2d');
+  let animId;
+  const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEF<>[]{}|#@'.split('');
+  let cols, drops;
+
+  function matrixInit() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const fs = 14;
+    cols = Math.floor(canvas.width / fs);
+    drops = Array(cols).fill(1);
+  }
+
+  function matrixDraw() {
+    ctx.fillStyle = 'rgba(0,0,0,0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const fs = 14;
+    ctx.font = fs + 'px IBM Plex Mono, monospace';
+
+    for (let i = 0; i < drops.length; i++) {
+      // Bazıları parlak, bazıları soluk
+      const bright = Math.random() > 0.9;
+      ctx.fillStyle = bright ? '#80d8ff' : '#0077aa';
+      const char = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(char, i * fs, drops[i] * fs);
+      if (drops[i] * fs > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+
+  function matrixBaslat() {
+    matrixInit();
+    animId = setInterval(matrixDraw, 40);
+    window.addEventListener('resize', matrixInit);
+  }
+
+  function matrixDurdur() {
+    clearInterval(animId);
+  }
+
+  // GİRİŞ
+  function girisKontrol() {
+    if (sessionStorage.getItem(SESSION_KEY) === '1') {
+      document.getElementById('girisEkrani').classList.add('hidden');
+      return true;
+    }
+    return false;
+  }
+
+  function girisYap() {
+    const val = document.getElementById('girisInput').value;
+    if (val === SIFRE) {
+      sessionStorage.setItem(SESSION_KEY, '1');
+      document.getElementById('girisHata').textContent = '';
+      // HELLO SAKA göster
+      const hello = document.getElementById('helloSaka');
+      const kutu = document.querySelector('.giris-kutu');
+      kutu.style.transition = 'opacity 0.5s';
+      kutu.style.opacity = '0';
+      hello.classList.add('goster');
+      // Biraz bekle sonra kapat
+      setTimeout(() => {
+        const ekran = document.getElementById('girisEkrani');
+        ekran.classList.add('fade-out');
+        setTimeout(() => {
+          ekran.classList.add('hidden');
+          matrixDurdur();
+        }, 800);
+      }, 1800);
+    } else {
+      const hata = document.getElementById('girisHata');
+      hata.textContent = '// ERİŞİM REDDEDİLDİ //';
+      // Shake efekti
+      const input = document.getElementById('girisInput');
+      input.style.borderColor = '#ff4466';
+      input.style.boxShadow = '0 0 12px rgba(255,68,102,0.5)';
+      input.value = '';
+      setTimeout(() => {
+        input.style.borderColor = '';
+        input.style.boxShadow = '';
+        hata.textContent = '';
+        input.focus();
+      }, 1500);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!girisKontrol()) {
+      matrixBaslat();
+      setTimeout(() => document.getElementById('girisInput').focus(), 100);
+    }
+    document.getElementById('girisBtn').addEventListener('click', girisYap);
+    document.getElementById('girisInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') girisYap();
+    });
+  });
+})();
+</script>
+
 </body>
 </html>
