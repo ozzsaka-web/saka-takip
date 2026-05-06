@@ -241,9 +241,11 @@ function _kalemTablosu(siparis, kapali) {
             <button class="btn-uretim ${uretimVar?'girildi':''}" data-kalem-id="${k.id}" data-siparis-kod="${siparis.kod}" ${kapali?'disabled':''}>
               ${uretimVar?'✓ Üretim':'Üretim Gir'}
             </button>
+            ${uretimVar && !kapali ? `<button class="btn-uretim-sil" data-kalem-id="${k.id}" data-siparis-kod="${siparis.kod}" title="Üretimi Sil">✕ Ürt</button>` : ''}
             <button class="btn-sevk" data-kalem-id="${k.id}" data-siparis-kod="${siparis.kod}" ${(!uretimVar||kapali)?'disabled':''}>
               Sevk Gir
             </button>
+            ${sevkVar && !kapali ? `<button class="btn-sevk-sil" data-kalem-id="${k.id}" data-siparis-kod="${siparis.kod}" title="Sevki Sil">✕ Svk</button>` : ''}
           </div>
         </td>
       </tr>`;
@@ -421,6 +423,52 @@ async function _sevkKaydet() {
   finally { btn.disabled=false; btn.textContent='Kaydet'; }
 }
 
+async function _uretimSil(kalemId, siparisKod) {
+  if (!confirm('Bu üretim kaydını silmek istediğinize emin misiniz?')) return;
+  const s = _tumSiparisler.find(x => x.kod === siparisKod);
+  if (!s) return;
+  const k = (s.kalemler || []).find(x => x.id === kalemId);
+  if (!k) return;
+  const eskiUretim = k.uretimMiktar;
+  const eskiAlis = k.alisFiyat;
+  const eskiKur = k.alisKur;
+  k.uretimMiktar = 0; k.alisFiyat = null; k.alisKur = null;
+  Cache.kaydet(Cache.KEYS.SIPARISLER, _tumSiparisler);
+  _listeRender();
+  toast('Üretim kaydı silindi', 'info');
+  try {
+    await API.uretimSil(kalemId, siparisKod);
+  } catch(e) {
+    k.uretimMiktar = eskiUretim; k.alisFiyat = eskiAlis; k.alisKur = eskiKur;
+    Cache.kaydet(Cache.KEYS.SIPARISLER, _tumSiparisler);
+    _listeRender();
+    toast('Silme hatası: ' + e.message, 'error');
+  }
+}
+
+async function _sevkSil(kalemId, siparisKod) {
+  if (!confirm('Bu sevk kaydını silmek istediğinize emin misiniz?')) return;
+  const s = _tumSiparisler.find(x => x.kod === siparisKod);
+  if (!s) return;
+  const k = (s.kalemler || []).find(x => x.id === kalemId);
+  if (!k) return;
+  const eskiSevk = k.sevkMiktar;
+  const eskiSatis = k.satisFiyat;
+  const eskiKur = k.satisKur;
+  k.sevkMiktar = 0; k.satisFiyat = null; k.satisKur = null;
+  Cache.kaydet(Cache.KEYS.SIPARISLER, _tumSiparisler);
+  _listeRender();
+  toast('Sevk kaydı silindi', 'info');
+  try {
+    await API.sevkSil(kalemId, siparisKod);
+  } catch(e) {
+    k.sevkMiktar = eskiSevk; k.satisFiyat = eskiSatis; k.satisKur = eskiKur;
+    Cache.kaydet(Cache.KEYS.SIPARISLER, _tumSiparisler);
+    _listeRender();
+    toast('Silme hatası: ' + e.message, 'error');
+  }
+}
+
 async function _siparisKapat(kod) {
   if (!confirm(kod + ' siparişini kapatmak istediğinize emin misiniz?')) return;
   const s = _tumSiparisler.find(x => x.kod === kod);
@@ -476,6 +524,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (sBtn) { _sevkModalAc(sBtn.dataset.kalemId, sBtn.dataset.siparisKod); return; }
     const kBtn = e.target.closest('.btn-siparis-kapat');
     if (kBtn) { _siparisKapat(kBtn.dataset.kod); return; }
+    const silBtn = e.target.closest('.btn-siparis-sil');
+    if (silBtn) { _siparisSil(silBtn.dataset.kod); return; }
+    const uSilBtn = e.target.closest('.btn-uretim-sil');
+    if (uSilBtn) { _uretimSil(uSilBtn.dataset.kalemId, uSilBtn.dataset.siparisKod); return; }
+    const sSilBtn = e.target.closest('.btn-sevk-sil');
+    if (sSilBtn) { _sevkSil(sSilBtn.dataset.kalemId, sSilBtn.dataset.siparisKod); return; }
   });
 
   // Tamamlananlar listesi delegation
@@ -662,16 +716,13 @@ function _uretimFisiYazdir(siparisKodu) {
   if (!s) return;
 
   const satirlar = s.kalemler.map(k => {
-    const fark = (Number(k.uretimMiktar)||0) - (Number(k.siparisMiktar)||0);
-    const farkStr = fark===0?'+0':fark>0?`+${_fmt(fark)}`:_fmt(fark);
-    const toplamDoviz = (Number(k.alisFiyat)||0) * (Number(k.uretimMiktar)||0);
-    const toplamTl = toplamDoviz * (Number(k.alisKur)||0);
-    return `${(k.urunAdi||'').substring(0,16).padEnd(17)}${(k.renkKod||'').substring(0,10).padEnd(11)}${_fmt(k.siparisMiktar).padEnd(9)}${_fmt(k.uretimMiktar||0).padEnd(9)}${farkStr.padEnd(8)}${_fmtTl(toplamTl)}`;
+    const fiyat = k.birimFiyat || k.alisFiyat || 0;
+    const kur = k.alisKur || '';
+    const doviz = k.alisDoviz || s.doviz || '';
+    return `${(k.urunAdi||'').substring(0,18).padEnd(19)}${(k.renkKod||'').substring(0,12).padEnd(13)}${_fmt(k.siparisMiktar).padEnd(10)}${(fiyat+' '+doviz).padEnd(12)}${kur ? _fmtTl(kur) : '—'}`;
   }).join('\n');
 
   const toplamSiparis = s.kalemler.reduce((t,k) => t+(Number(k.siparisMiktar)||0), 0);
-  const toplamUretim = s.kalemler.reduce((t,k) => t+(Number(k.uretimMiktar)||0), 0);
-  const toplamFark = toplamUretim - toplamSiparis;
 
   const icerik = `URETiM FiSi
 ${'='.repeat(60)}
@@ -682,11 +733,11 @@ Tarih        : ${_fmtTarih(s.tarih)}
 Doviz        : ${s.doviz}
 ${'='.repeat(60)}
 
-${'URUN'.padEnd(17)}${'RENK/KOD'.padEnd(11)}${'SiP(M)'.padEnd(9)}${'URE(M)'.padEnd(9)}${'FARK'.padEnd(8)}${'TOPLAM TL'}
+${'URUN'.padEnd(19)}${'RENK/KOD'.padEnd(13)}${'SiP(M)'.padEnd(10)}${'FiYAT'.padEnd(12)}${'KUR (TL)'}
 ${'-'.repeat(60)}
 ${satirlar}
 ${'-'.repeat(60)}
-${'TOPLAM'.padEnd(17)}${''.padEnd(11)}${_fmt(toplamSiparis).padEnd(9)}${_fmt(toplamUretim).padEnd(9)}${(toplamFark>=0?'+':'')+_fmt(toplamFark)}
+${'TOPLAM SiPARiS'.padEnd(32)}${_fmt(toplamSiparis)} M
 
 ${'='.repeat(60)}
 SAKA TAKiP - Sistem Ciktisi
@@ -782,14 +833,14 @@ function _sevkFisiYazdir(siparisKodu) {
   if (!s) return;
 
   const satirlar = s.kalemler.map(k => {
-    const fark = (Number(k.sevkMiktar)||0) - (Number(k.uretimMiktar)||0);
-    const farkStr = fark===0?'+0':fark>0?`+${_fmt(fark)}`:_fmt(fark);
-    const toplamDoviz = (Number(k.satisFiyat)||0) * (Number(k.sevkMiktar)||0);
-    const toplamTl = toplamDoviz * (Number(k.satisKur)||0);
-    return `${(k.urunAdi||'').substring(0,16).padEnd(17)}${(k.renkKod||'').substring(0,10).padEnd(11)}${_fmt(k.uretimMiktar||0).padEnd(9)}${_fmt(k.sevkMiktar||0).padEnd(9)}${farkStr.padEnd(8)}${_fmtTl(toplamTl)}`;
+    const sevk = Number(k.sevkMiktar)||0;
+    const fiyat = Number(k.satisFiyat)||0;
+    const kur = Number(k.satisKur)||0;
+    const doviz = k.satisDoviz || s.doviz || '';
+    const tutar = _fmtTl(sevk * fiyat * kur);
+    return `${(k.urunAdi||'').substring(0,18).padEnd(19)}${(k.renkKod||'').substring(0,10).padEnd(11)}${_fmt(sevk).padEnd(10)}${(fiyat+' '+doviz).padEnd(12)}${tutar}`;
   }).join('\n');
 
-  const toplamUretim = s.kalemler.reduce((t,k) => t+(Number(k.uretimMiktar)||0), 0);
   const toplamSevk = s.kalemler.reduce((t,k) => t+(Number(k.sevkMiktar)||0), 0);
   const toplamTutar = s.kalemler.reduce((t,k) => t+((Number(k.satisFiyat)||0)*(Number(k.sevkMiktar)||0)*(Number(k.satisKur)||0)), 0);
 
@@ -802,11 +853,12 @@ Tarih        : ${_fmtTarih(s.tarih)}
 Doviz        : ${s.doviz}
 ${'='.repeat(60)}
 
-${'URUN'.padEnd(17)}${'RENK/KOD'.padEnd(11)}${'URE(M)'.padEnd(9)}${'SEVK(M)'.padEnd(9)}${'FARK'.padEnd(8)}${'TOPLAM TL'}
+${'URUN'.padEnd(19)}${'RENK/KOD'.padEnd(11)}${'SEVK(M)'.padEnd(10)}${'FiYAT'.padEnd(12)}${'TUTAR (TL)'}
 ${'-'.repeat(60)}
 ${satirlar}
 ${'-'.repeat(60)}
-${'TOPLAM'.padEnd(17)}${''.padEnd(11)}${_fmt(toplamUretim).padEnd(9)}${_fmt(toplamSevk).padEnd(9)}${''.padEnd(8)}${_fmtTl(toplamTutar)}
+${'TOPLAM SEVK'.padEnd(30)}${_fmt(toplamSevk)} M
+${'TOPLAM TUTAR'.padEnd(30)}${_fmtTl(toplamTutar)}
 
 ${'='.repeat(60)}
 SAKA TAKiP - Sistem Ciktisi
