@@ -85,6 +85,8 @@ const API = (() => {
     tahsilatlariGetir: (musteriAdi) => _istek('tahsilatlariGetir', { musteriAdi }),
     tahsilatSil: (id) => _istek('tahsilatSil', { id }),
     siparisSil: (siparisKodu) => _istek('siparisSil', { siparisKodu }),
+    uretimSil: (kalemId, siparisKodu) => _istek('uretimSil', { kalemId, siparisKodu }),
+    sevkSil: (kalemId, siparisKodu) => _istek('sevkSil', { kalemId, siparisKodu }),
   };
 
 })();
