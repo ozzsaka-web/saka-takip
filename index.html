@@ -528,7 +528,7 @@
 
 <script>
 (function(){
-  var S='6161csr',K='sktv3_g';
+  var S='6161csr',K='sktv4_g';
   var c=document.getElementById('mC'),ctx=c.getContext('2d'),aid,cols,drops;
   var ch='アイウエオカキクケコ0123456789ABCDEF<>[]{}|#@'.split('');
   function init(){c.width=innerWidth;c.height=innerHeight;cols=Math.floor(c.width/14);drops=Array(cols).fill(1);}
@@ -547,10 +547,7 @@
   function show(){
     document.getElementById('gE').classList.add('hidden');
     document.getElementById('app').style.display='';
-    // Giriş sonrası verileri yükle
-    if(typeof _siparisleriYukle === 'function') {
-      setTimeout(function(){ _siparisleriYukle(true); }, 100);
-    }
+    if(typeof _siparisleriYukle==='function'){setTimeout(function(){_siparisleriYukle(true);},200);}
   }
   function kontrol(){
     if(sessionStorage.getItem(K)==='1'){show();return true;}
