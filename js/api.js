@@ -6,45 +6,17 @@ const API = (() => {
     SIPARIS_KOD_PREFIX: 'STK',
   };
 
-  async function _istek(action, payload = {}) {
-    const body = JSON.stringify({ action, ...payload });
+ async function _istek(action, payload = {}) {
+  const url = CONFIG.SCRIPT_URL +
+    '?action=' + encodeURIComponent(action) +
+    '&payload=' + encodeURIComponent(JSON.stringify(payload));
 
-    let res;
-
-    try {
-      res = await fetch(CONFIG.SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body,
-        redirect: 'follow'
-      });
-    } catch (e) {
-      const url =
-        CONFIG.SCRIPT_URL +
-        '?action=' + encodeURIComponent(action) +
-        '&payload=' + encodeURIComponent(body);
-
-      res = await fetch(url, {
-        method: 'GET',
-        redirect: 'follow'
-      });
-    }
-
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-
-    const text = await res.text();
-
-    let json;
-    try {
-      json = JSON.parse(text);
-    } catch (e) {
-      throw new Error('Geçersiz yanıt: ' + text.substring(0, 100));
-    }
-
-    if (json.status === 'error') throw new Error(json.message);
-
-    return json.data;
-  }
+  const res = await fetch(url, { redirect: 'follow' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const json = await res.json();
+  if (json.status === 'error') throw new Error(json.message);
+  return json.data;
+}
 
   async function testBaglanti() {
     try {
