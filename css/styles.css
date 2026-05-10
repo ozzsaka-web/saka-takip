@@ -1,4 +1,4 @@
-/* ============================================================
+    /* ============================================================
        SAKA TAKİP — Stil
     ============================================================ */
     :root {
@@ -243,18 +243,3 @@
   border-radius: 4px;
   cursor: pointer;
 }
-/* Üretim/Sevk Sil butonları */
-.btn-uretim-sil, .btn-sevk-sil {
-  font-size: 10px;
-  padding: 3px 7px;
-  background: var(--color-danger-light, #fef2f2);
-  color: var(--color-danger, #c0392b);
-  border: 1px solid rgba(192,57,43,0.2);
-  border-radius: 4px;
-  cursor: pointer;
-  font-family: var(--font-sans);
-  font-weight: 500;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-.btn-uretim-sil:hover, .btn-sevk-sil:hover { background: #f5c6c3; }
