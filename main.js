@@ -1,3 +1,4 @@
+// v4
 function _fmt(n) {
   if (n == null || isNaN(n)) return '0';
   return Number(n).toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
