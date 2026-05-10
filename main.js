@@ -281,7 +281,7 @@ function _uretimModalAc(siparis, kalemId) {
   document.getElementById('uretimAlisKur').value = '';
 
   // Döviz seçimini ayarla
-  const dovizSec = document.getElementById('uretimDoviz');
+  const dovizSec = document.getElementById('uretimAlisDoviz');
   if (dovizSec) dovizSec.value = siparis.doviz || 'EUR';
 
   document.getElementById('modalUretim').classList.remove('hidden');
@@ -296,7 +296,7 @@ async function _uretimKaydet() {
   const miktar = parseFloat(document.getElementById('uretimMiktar').value) || 0;
   const alisFiyat = parseFloat(document.getElementById('uretimAlisFiyat').value) || 0;
   const alisKur = parseFloat(document.getElementById('uretimAlisKur').value) || 0;
-  const doviz = document.getElementById('uretimDoviz')?.value || siparis.doviz || 'EUR';
+  const doviz = document.getElementById('uretimAlisDoviz')?.value || siparis.doviz || 'EUR';
 
   if (!tarih || miktar <= 0) { toast('Tarih ve miktar zorunlu', 'error'); return; }
 
@@ -365,7 +365,7 @@ function _sevkModalAc(siparis, kalemId) {
   document.getElementById('sevkSatisKur').value = '';
 
   // Döviz seçimini ayarla
-  const dovizSec = document.getElementById('sevkDoviz');
+  const dovizSec = document.getElementById('sevkSatisDoviz');
   if (dovizSec) dovizSec.value = siparis.doviz || 'EUR';
 
   document.getElementById('modalSevk').classList.remove('hidden');
@@ -380,7 +380,7 @@ async function _sevkKaydet() {
   const miktar = parseFloat(document.getElementById('sevkMiktar').value) || 0;
   const satisFiyat = parseFloat(document.getElementById('sevkSatisFiyat').value) || 0;
   const satisKur = parseFloat(document.getElementById('sevkSatisKur').value) || 0;
-  const doviz = document.getElementById('sevkDoviz')?.value || siparis.doviz || 'EUR';
+  const doviz = document.getElementById('sevkSatisDoviz')?.value || siparis.doviz || 'EUR';
 
   if (!tarih || miktar <= 0) { toast('Tarih ve miktar zorunlu', 'error'); return; }
 
